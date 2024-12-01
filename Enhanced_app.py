@@ -1,9 +1,12 @@
 import streamlit as st
 import pickle
 import numpy as np
-
+import os
+current_dir = os.path.dirname(__file__)
+model_path = os.path.join(current_dir, 'model.pkl')
+model = pickle.load(open(model_path, 'rb'))
 # Load the trained model
-model = pickle.load(open('model.pkl', 'rb'))
+#*model = pickle.load(open('model.pkl', 'rb'))
 
 st.title('Diabetes Prediction App')
 st.write("This app predicts the likelihood of diabetes based on user inputs.")
