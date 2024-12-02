@@ -33,6 +33,12 @@ if st.button('Predict'):
     else:
         st.success(f"The model predicts that you are unlikely to have diabetes. Probability: {prediction_prob:.2f}")
 
+if prediction[0] == 1:
+    st.write("High Risk of Diabetes: Consult a healthcare provider.")
+else:
+    st.write("Low Risk of Diabetes: Maintain a healthy lifestyle.")
+
+
 # Add sidebar with information about the model
 st.sidebar.header("About")
 st.sidebar.write("This model uses Logistic Regression trained on the Pima Indians Diabetes Dataset.")
