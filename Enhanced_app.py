@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+import shap
 from sklearn.preprocessing import StandardScaler
 
 # Paths to the model and scaler
@@ -39,14 +40,14 @@ st.sidebar.write("""
 
 st.sidebar.header("Parameter Explanations")
 st.sidebar.write("""
-- **Pregnancies**: Higher pregnancies may increase the likelihood of diabetes due to gestational diabetes risk.
-- **Glucose Level**: Elevated glucose levels are a primary indicator of diabetes.
-- **Blood Pressure**: High blood pressure is often associated with diabetes.
-- **Skin Thickness**: Indicates body fat distribution, which can affect insulin resistance.
-- **Insulin**: Abnormal insulin levels can signify poor glucose regulation.
-- **BMI**: Higher BMI suggests obesity, a major risk factor for diabetes.
-- **Diabetes Pedigree Function**: Reflects the influence of family history on diabetes risk.
-- **Age**: Older age increases the likelihood of developing diabetes.
+- **Pregnancies**: Number of times pregnant.
+- **Glucose Level**: Plasma glucose concentration in an oral glucose tolerance test.
+- **Blood Pressure**: Diastolic blood pressure.
+- **Skin Thickness**: Triceps skin fold thickness.
+- **Insulin**: 2-Hour serum insulin.
+- **BMI**: Body Mass Index (weight in kg/(height in m)^2).
+- **Diabetes Pedigree Function**: Influence of family history on diabetes risk.
+- **Age**: Age in years.
 """)
 
 # Collect inputs for all 8 features with default values
@@ -83,27 +84,30 @@ if st.button('Predict'):
     }
     st.write(user_inputs)
 
-    # Display results with threshold adjustment
-    threshold = 0.5  # Default threshold
+    # Display results
     st.subheader("Prediction Probability:")
     st.progress(prediction_prob)
-    if prediction_prob >= threshold:
+    if prediction_prob >= 0.5:
         st.error(f"The model predicts that you are likely to have diabetes. Probability: {prediction_prob:.2f}")
     else:
         st.success(f"The model predicts that you are unlikely to have diabetes. Probability: {prediction_prob:.2f}")
 
-# Feature importance visualization (if applicable)
-if hasattr(model, 'coef_'):
-    st.subheader("Feature Importance")
-    feature_names = ['Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness', 'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age']
-    importance = model.coef_[0]
+    # SHAP Explanation
+    st.subheader("Feature Explainability with SHAP")
+    explainer = shap.Explainer(model, masker=scaler.transform)
+    shap_values = explainer(features)
 
-    # Normalize the importance for better visualization
-    normalized_importance = (importance - np.min(importance)) / (np.max(importance) - np.min(importance))
+    # Generate SHAP waterfall plot
+    st.write("Waterfall Plot for Feature Contribution:")
+    shap.waterfall_plot(shap_values[0], feature_names=['Pregnancies', 'Glucose', 'Blood Pressure', 
+                                                       'Skin Thickness', 'Insulin', 'BMI', 
+                                                       'Diabetes Pedigree Function', 'Age'])
+    plt.tight_layout()
+    st.pyplot()
 
-    plt.figure(figsize=(8, 6))
-    plt.barh(feature_names, normalized_importance, color='skyblue')
-    plt.xlabel("Importance (Normalized)")
-    plt.ylabel("Features")
-    plt.title("Feature Importance")
-    st.pyplot(plt)
+    # Generate SHAP summary plot
+    st.write("Summary Plot for Feature Importance:")
+    shap.summary_plot(shap_values, features, feature_names=['Pregnancies', 'Glucose', 'Blood Pressure', 
+                                                            'Skin Thickness', 'Insulin', 'BMI', 
+                                                            'Diabetes Pedigree Function', 'Age'])
+    st.pyplot()
