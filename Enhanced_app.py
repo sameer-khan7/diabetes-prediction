@@ -37,6 +37,18 @@ st.sidebar.write("""
 - Click the "Predict" button to see results.
 """)
 
+st.sidebar.header("Parameter Explanations")
+st.sidebar.write("""
+- **Pregnancies**: Higher pregnancies may increase the likelihood of diabetes due to gestational diabetes risk.
+- **Glucose Level**: Elevated glucose levels are a primary indicator of diabetes.
+- **Blood Pressure**: High blood pressure is often associated with diabetes.
+- **Skin Thickness**: Indicates body fat distribution, which can affect insulin resistance.
+- **Insulin**: Abnormal insulin levels can signify poor glucose regulation.
+- **BMI**: Higher BMI suggests obesity, a major risk factor for diabetes.
+- **Diabetes Pedigree Function**: Reflects the influence of family history on diabetes risk.
+- **Age**: Older age increases the likelihood of developing diabetes.
+""")
+
 # Collect inputs for all 8 features with default values
 pregnancies = st.number_input('Pregnancies', min_value=0, value=0, help="Number of times pregnant")
 glucose = st.number_input('Glucose Level', min_value=0.0, value=120.0, help="Plasma glucose concentration in an oral glucose tolerance test")
