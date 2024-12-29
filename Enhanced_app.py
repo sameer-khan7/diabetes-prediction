@@ -30,6 +30,7 @@ st.sidebar.header("About")
 st.sidebar.write("""
 This app uses a Logistic Regression model trained on the Pima Indians Diabetes Dataset.
 Enter your health metrics in the input fields to get predictions and probabilities.
+Made by Sameer Khan.
 """)
 st.sidebar.subheader("Instructions")
 st.sidebar.write("""
