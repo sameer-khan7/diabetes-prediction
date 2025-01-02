@@ -3,6 +3,16 @@ import sqlite3
 import bcrypt
 
 def login_page():
+    # Ensure that the session state is initialized properly
+    if "login_username" not in st.session_state:
+        st.session_state["login_username"] = ""
+    if "login_password" not in st.session_state:
+        st.session_state["login_password"] = ""
+    if "signup_username" not in st.session_state:
+        st.session_state["signup_username"] = ""
+    if "signup_password" not in st.session_state:
+        st.session_state["signup_password"] = ""
+
     st.title("Login Page")
 
     # Database Connection
@@ -11,22 +21,26 @@ def login_page():
 
     # Login Section
     st.subheader("Log In")
-    username = st.text_input("Username", key="login_username")  # Use key to track state
+    username = st.text_input("Username", value=st.session_state.login_username, key="login_username")
     password = st.text_input("Password", type="password", key="login_password")
 
     if st.button("Log In"):
-        c.execute("SELECT * FROM users WHERE username = ?", (username,))
-        user = c.fetchone()
-        if user and bcrypt.checkpw(password.encode('utf-8'), user[1].encode('utf-8')):
-            st.session_state.page = "Prediction"
-            st.session_state.username = username  # Store the username in session state
-            st.experimental_rerun()
+        if username and password:
+            c.execute("SELECT * FROM users WHERE username = ?", (username,))
+            user = c.fetchone()
+            if user and bcrypt.checkpw(password.encode('utf-8'), user[1].encode('utf-8')):
+                st.session_state.page = "Prediction"
+                st.session_state.username = username
+                st.success("Login successful! Redirecting...")
+                st.experimental_rerun()
+            else:
+                st.error("Invalid username or password.")
         else:
-            st.error("Invalid username or password.")
+            st.error("Please fill out all fields.")
 
     # Sign-Up Section
     st.subheader("Sign Up")
-    new_username = st.text_input("New Username", key="signup_username")
+    new_username = st.text_input("New Username", value=st.session_state.signup_username, key="signup_username")
     new_password = st.text_input("New Password", type="password", key="signup_password")
 
     if st.button("Sign Up"):
