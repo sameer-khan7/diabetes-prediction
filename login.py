@@ -11,6 +11,8 @@ if "signup_username" not in st.session_state:
     st.session_state["signup_username"] = ""
 if "signup_password" not in st.session_state:
     st.session_state["signup_password"] = ""
+if "signup_success" not in st.session_state:
+    st.session_state["signup_success"] = False
 
 def login_page():
     st.title("Login Page")
@@ -46,8 +48,8 @@ def login_page():
     # Sign-Up Section
     with st.form("Sign Up"):
         st.subheader("Sign Up")
-        new_username = st.text_input("New Username", value=st.session_state["signup_username"])
-        new_password = st.text_input("New Password", type="password", value=st.session_state["signup_password"])
+        new_username = st.text_input("New Username", value=st.session_state["signup_username"], key="signup_username")
+        new_password = st.text_input("New Password", type="password", value=st.session_state["signup_password"], key="signup_password")
         signup_btn = st.form_submit_button("Sign Up")
 
         if signup_btn:
@@ -57,9 +59,13 @@ def login_page():
                     c.execute("INSERT INTO users (username, password) VALUES (?, ?)", 
                               (new_username, hashed_password.decode('utf-8')))
                     conn.commit()
-                    st.success("Account created! Please log in.")
+                    st.session_state["signup_success"] = True
+                    st.success("Account created successfully! Please log in.")
+                    # Reset sign-up fields
+                    st.session_state["signup_username"] = ""
+                    st.session_state["signup_password"] = ""
                 except sqlite3.IntegrityError:
-                    st.error("Username already exists.")
+                    st.error("Username already exists. Please choose a different username.")
             else:
                 st.error("Please fill out all fields.")
 
