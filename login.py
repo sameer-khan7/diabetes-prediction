@@ -61,14 +61,7 @@ def login_page():
 
         # Handle form submission
         if signup_btn:
-            if new_username and new_password:
-                success, message = handle_signup(new_username, new_password)
-                if success:
-                    st.success(message)
-                else:
-                    st.error(message)
-            else:
-                st.error("Please fill out all fields.")
+            st.success("Button clicked successfully! No database interaction.")
 
 # Initialize the app
 setup_database()
