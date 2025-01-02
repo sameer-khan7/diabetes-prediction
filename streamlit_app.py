@@ -1,13 +1,19 @@
 import streamlit as st
+import login
+import prediction
 
-# Set default page to Login
+# Initialize session state for navigation
 if "page" not in st.session_state:
-    st.session_state.page = "Login"
+    st.session_state.page = "login"  # Default page
 
-# Navigation Logic
-if st.session_state.page == "Login":
-    import login
-elif st.session_state.page == "Prediction":
-    import prediction
-elif st.session_state.page == "Dashboard":
-    import dashboard
+# Navigation logic
+if st.session_state.page == "login":
+    login.login_page()
+elif st.session_state.page == "prediction":
+    prediction.prediction_page()
+
+# Navigation buttons
+if st.session_state.page == "prediction":
+    if st.button("Log Out"):
+        st.session_state.page = "login"
+        st.experimental_rerun()
