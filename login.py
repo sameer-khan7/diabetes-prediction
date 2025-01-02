@@ -7,7 +7,7 @@ def minimal_test():
         password = st.text_input("Password", type="password")
         submit_btn = st.form_submit_button("Submit")
         if submit_btn:
-            st.write(f"Username: {username}")
-            st.success("Form submitted successfully!")
+            st.write("Submit button clicked")
+            st.write(f"Username: {username}, Password: {password}")
 
 minimal_test()
