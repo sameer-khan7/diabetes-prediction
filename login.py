@@ -26,14 +26,14 @@ def login_page():
 
     # Sign-Up Section
     st.subheader("Sign Up")
-    with st.form("Sign Up Form"):
+    with st.form("Sign Up Form"):  # Define form with a unique key
         st.session_state.signup_username = st.text_input(
-            "New Username", value=st.session_state.signup_username, key="signup_username"
+            "New Username", value=st.session_state.signup_username
         )
         st.session_state.signup_password = st.text_input(
-            "New Password", type="password", value=st.session_state.signup_password, key="signup_password"
+            "New Password", type="password", value=st.session_state.signup_password
         )
-        signup_btn = st.form_submit_button("Sign Up")
+        signup_btn = st.form_submit_button("Sign Up")  # Add submit button
 
         if signup_btn:
             # Debugging step: Check button press
