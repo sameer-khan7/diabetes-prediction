@@ -37,6 +37,7 @@ def login_page():
                     st.session_state.username = username
                     st.session_state.page = "dashboard"
                     st.success(f"Welcome, {username}!")
+                    st.rerun()
                 else:
                     st.error("Invalid username or password.")
             else:
