@@ -36,7 +36,7 @@ def login_page():
                 user = c.fetchone()
                 if user and bcrypt.checkpw(password.encode("utf-8"), user[0].encode("utf-8")):
                     st.session_state.page = "prediction"
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Invalid username or password.")
             else:
