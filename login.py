@@ -37,7 +37,7 @@ def login_page():
                 if user and bcrypt.checkpw(password.encode("utf-8"), user[0].encode("utf-8")):
                     st.session_state.page = "dashboard"  # Redirect to dashboard
                     st.session_state.username = username  # Store logged-in username
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Invalid username or password.")
             else:
