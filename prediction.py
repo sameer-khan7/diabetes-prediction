@@ -22,6 +22,12 @@ def prediction_page():
         st.error(f"Error loading model or scaler: {e}")
         return
 
+    # Sidebar Navigation
+    st.sidebar.header("Navigation")
+    if st.sidebar.button("Go to Dashboard", key="go_to_dashboard"):
+        st.session_state.page = "dashboard"  # Update session state for navigation
+        st.experimental_rerun()  # Trigger rerun to navigate to the dashboard page
+
     # Page title
     st.title('Diabetes Prediction App')
     st.write("This app predicts the likelihood of diabetes based on user inputs.")
