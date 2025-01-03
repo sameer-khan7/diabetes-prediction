@@ -11,13 +11,13 @@ def login_page():
     # Database setup (ensure this runs only once and does not overwrite existing data)
     conn = sqlite3.connect(db_path)  # Use the correct file path
     c = conn.cursor()
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            username TEXT UNIQUE,
-            password TEXT
-        )
-    """)
-    conn.commit()
+    #c.execute("""
+    #    CREATE TABLE IF NOT EXISTS users (
+    #        username TEXT UNIQUE,
+    #        password TEXT
+    #    )
+    #""")
+    #conn.commit()
 
     # Login Section
     st.title("Login Page")
