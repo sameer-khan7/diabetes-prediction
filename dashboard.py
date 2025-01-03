@@ -10,12 +10,12 @@ def dashboard_page():
         st.rerun()
 
     # Add a top-right logout button
-    col1, col2 = st.columns([9, 1])  # Adjust column ratios for layout
-    with col2:
-        if st.button("Log Out", key="logout_button"):
-            st.session_state.page = "login"
-            st.session_state.pop("username", None)  # Clear session data
-            st.rerun()
+    #col1, col2 = st.columns([9, 1])  # Adjust column ratios for layout
+    #with col2:
+    #   if st.button("Log Out", key="logout_button"):
+    #        st.session_state.page = "login"
+    #        st.session_state.pop("username", None)  # Clear session data
+    #        st.rerun()
 
     # Main dashboard content
     st.title("User Dashboard")
