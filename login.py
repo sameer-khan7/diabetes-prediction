@@ -1,11 +1,15 @@
 import streamlit as st
 import sqlite3
 import bcrypt
+import os
 
 def login_page():
+    # Get the correct file path for the database
+    current_dir = os.path.dirname(__file__)  # Path to the directory containing this script
+    db_path = os.path.join(current_dir, "users.db")  # Path to the database file
 
     # Database setup (ensure this runs only once and does not overwrite existing data)
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect(db_path)  # Use the correct file path
     c = conn.cursor()
     c.execute("""
         CREATE TABLE IF NOT EXISTS users (
