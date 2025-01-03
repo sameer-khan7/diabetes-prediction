@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+import sqlite3
 from sklearn.preprocessing import StandardScaler
 
 def prediction_page():
