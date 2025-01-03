@@ -96,9 +96,27 @@ def prediction_page():
             st.subheader("Prediction Probability:")
             st.progress(prediction_prob)
             if prediction_prob >= threshold:
+                result = "Positive"
                 st.error(f"The model predicts that you are likely to have diabetes. Probability: {prediction_prob:.2f}")
             else:
+                result = "Negative"
                 st.success(f"The model predicts that you are unlikely to have diabetes. Probability: {prediction_prob:.2f}")
+
+            # Save results to database
+            if "username" in st.session_state:
+                current_dir = os.path.dirname(__file__)
+                db_path = os.path.join(current_dir, "users.db")
+                conn = sqlite3.connect(db_path)
+                c = conn.cursor()
+                c.execute("""
+                    INSERT INTO results (username, glucose, bmi, prediction)
+                    VALUES (?, ?, ?, ?)
+                """, (st.session_state.username, glucose, bmi, result))
+                conn.commit()
+                conn.close()
+                st.success("Prediction saved to your dashboard.")
+            else:
+                st.warning("You must be logged in to save your results.")
 
         except Exception as e:
             st.error(f"Error during prediction: {e}")
