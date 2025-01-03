@@ -3,11 +3,6 @@ import sqlite3
 import bcrypt
 
 def login_page():
-    # Initialize session state variables
-    if "logged_in" not in st.session_state:
-        st.session_state.logged_in = False
-    if "username" not in st.session_state:
-        st.session_state.username = None
 
     # Database setup (ensure this runs only once and does not overwrite existing data)
     conn = sqlite3.connect("users.db")
@@ -19,15 +14,6 @@ def login_page():
         )
     """)
     conn.commit()
-
-    # If the user is already logged in, redirect to the dashboard
-    if st.session_state.logged_in:
-        st.success(f"Welcome back, {st.session_state.username}!")
-        st.write("You are already logged in.")
-        if st.button("Go to Dashboard"):
-            st.session_state.page = "dashboard"
-        conn.close()
-        return
 
     # Login Section
     st.title("Login Page")
