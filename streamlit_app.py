@@ -16,7 +16,7 @@ def show_top_bar():
 def logout():
     st.session_state.page = "login"
     st.session_state.pop("username", None)  # Clear logged-in user data
-    st.experimental_rerun()
+    st.rerun()
 
 # Navigation logic
 if st.session_state.page == "login":
