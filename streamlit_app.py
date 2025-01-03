@@ -16,4 +16,4 @@ elif st.session_state.page == "prediction":
 if st.session_state.page == "prediction":
     if st.button("Log Out"):
         st.session_state.page = "login"
-        st.experimental_rerun()
+        st.rerun()
