@@ -22,11 +22,13 @@ def prediction_page():
         st.error(f"Error loading model or scaler: {e}")
         return
 
-    # Page title
-    st.title('Diabetes Prediction App')
-    st.write("This app predicts the likelihood of diabetes based on user inputs.")
+    # Sidebar Navigation
+    st.sidebar.header("Navigation")
+    if st.sidebar.button("Go to Dashboard", key="go_to_dashboard"):
+        st.session_state.page = "dashboard"  # Update session state for navigation
+        st.experimental_rerun()  # Trigger rerun to navigate to the dashboard page
 
-    # Sidebar information
+    # Sidebar Information
     st.sidebar.header("About")
     st.sidebar.write("""
     This app uses a Logistic Regression model trained on the Pima Indians Diabetes Dataset.
@@ -49,6 +51,10 @@ def prediction_page():
     - **Diabetes Pedigree Function**: Reflects the influence of family history on diabetes risk.
     - **Age**: Older age increases the likelihood of developing diabetes.
     """)
+
+    # Page title
+    st.title('Diabetes Prediction App')
+    st.write("This app predicts the likelihood of diabetes based on user inputs.")
 
     # Collect inputs for all 8 features with default values
     pregnancies = st.number_input('Pregnancies', min_value=0, value=0, help="Number of times pregnant")
@@ -100,15 +106,4 @@ def prediction_page():
     # Feature importance visualization (if applicable)
     if hasattr(model, 'coef_'):
         st.subheader("Feature Importance")
-        feature_names = ['Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness', 'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age']
-        importance = model.coef_[0]
-
-        # Normalize the importance for better visualization
-        normalized_importance = (importance - np.min(importance)) / (np.max(importance) - np.min(importance))
-
-        plt.figure(figsize=(8, 6))
-        plt.barh(feature_names, normalized_importance, color='skyblue')
-        plt.xlabel("Importance (Normalized)")
-        plt.ylabel("Features")
-        plt.title("Feature Importance")
-        st.pyplot(plt)
+        feature_names = ['Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness', 'Insulin', 'BMI'
