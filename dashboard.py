@@ -3,13 +3,19 @@ import sqlite3
 import pandas as pd
 
 def dashboard_page():
+    # Add a navigation button in the sidebar
+    st.sidebar.header("Navigation")
+    if st.sidebar.button("Go to Prediction"):
+        st.session_state.page = "prediction"
+        st.rerun()
+        
     # Top bar with logout button
     col1, col2 = st.columns([9, 1])
     with col2:
         if st.button("Log Out"):
             st.session_state.page = "login"
             st.session_state.pop("username", None)  # Clear user data
-            st.experimental_rerun()
+            st.rerun()
             
     st.title("User Dashboard")
     
