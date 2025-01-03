@@ -26,7 +26,7 @@ def prediction_page():
     st.sidebar.header("Navigation")
     if st.sidebar.button("Go to Dashboard", key="go_to_dashboard"):
         st.session_state.page = "dashboard"  # Update session state for navigation
-        st.experimental_rerun()  # Trigger rerun to navigate to the dashboard page
+        st.rerun()  # Trigger rerun to navigate to the dashboard page
 
     # Page title
     st.title('Diabetes Prediction App')
