@@ -69,7 +69,7 @@ def login_page():
 
     # Footer
     st.markdown("---")
-    st.caption("Powered by Streamlit | Diabetes Prediction App © 2025")
+    st.caption("Diabetes Prediction App © 2025")
 
     # Close the database connection
     conn.close()
