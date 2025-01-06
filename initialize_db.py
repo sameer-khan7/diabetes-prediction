@@ -8,6 +8,8 @@ c = conn.cursor()
 c.execute('''
 CREATE TABLE IF NOT EXISTS users (
     username TEXT PRIMARY KEY,
+    full_name TEXT
+    email TEXT
     password TEXT
 )
 ''')
