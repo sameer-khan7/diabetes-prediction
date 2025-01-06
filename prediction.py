@@ -4,13 +4,18 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import sqlite3
+import pandas as pd
+import plotly.express as px
 from sklearn.preprocessing import StandardScaler
+import shap
+
 
 def prediction_page():
     # Paths to the model and scaler
     current_dir = os.path.dirname(__file__)
     model_path = os.path.join(current_dir, 'model.pkl')
     scaler_path = os.path.join(current_dir, 'scaler.pkl')
+    db_path = os.path.join(current_dir, "users.db")
 
     # Load the trained model and scaler with error handling
     try:
@@ -23,13 +28,7 @@ def prediction_page():
         st.error(f"Error loading model or scaler: {e}")
         return
 
-    # Sidebar Navigation
-    st.sidebar.header("Navigation")
-    if st.sidebar.button("Go to Dashboard", key="go_to_dashboard"):
-        st.session_state.page = "dashboard"  # Update session state for navigation
-        st.rerun()  # Trigger rerun to navigate to the dashboard page
-
-    # Improved Logout Button
+    # Logout Button
     st.markdown(
         """
         <style>
@@ -51,110 +50,85 @@ def prediction_page():
         st.markdown('</div>', unsafe_allow_html=True)
 
     # Page title
-    st.title('Diabetes Prediction App')
-    st.write("This app predicts the likelihood of diabetes based on user inputs.")
+    st.title("Diabetes Prediction App")
+    st.write("This app predicts the likelihood of diabetes based on user inputs or uploaded data.")
 
-    # Sidebar information
-    st.sidebar.header("About")
-    st.sidebar.write("""
-    This app uses a Logistic Regression model trained on the Pima Indians Diabetes Dataset.
-    Enter your health metrics in the input fields to get predictions and probabilities.
-    """)
-    st.sidebar.subheader("Instructions")
-    st.sidebar.write("""
-    - Input values for the required features.
-    - Click the "Predict" button to see results.
-    """)
+    # Sidebar navigation
+    st.sidebar.header("Navigation")
+    if st.sidebar.button("Go to Dashboard", key="go_to_dashboard"):
+        st.session_state.page = "dashboard"
+        st.rerun()
 
-    st.sidebar.header("Parameter Explanations")
-    st.sidebar.write("""
-    - **Pregnancies**: Higher pregnancies may increase the likelihood of diabetes due to gestational diabetes risk.
-    - **Glucose Level**: Elevated glucose levels are a primary indicator of diabetes.
-    - **Blood Pressure**: High blood pressure is often associated with diabetes.
-    - **Skin Thickness**: Indicates body fat distribution, which can affect insulin resistance.
-    - **Insulin**: Abnormal insulin levels can signify poor glucose regulation.
-    - **BMI**: Higher BMI suggests obesity, a major risk factor for diabetes.
-    - **Diabetes Pedigree Function**: Reflects the influence of family history on diabetes risk.
-    - **Age**: Older age increases the likelihood of developing diabetes.
-    """)
-
-    # Collect inputs for all 8 features with default values
+    # Input Section
+    st.subheader("Input Your Data")
     pregnancies = st.number_input('Pregnancies', min_value=0, value=0, help="Number of times pregnant")
-    glucose = st.number_input('Glucose Level', min_value=0.0, value=120.0, help="Plasma glucose concentration in an oral glucose tolerance test")
+    glucose = st.number_input('Glucose Level', min_value=0.0, value=120.0, help="Plasma glucose concentration")
     blood_pressure = st.number_input('Blood Pressure (mm Hg)', min_value=0.0, value=70.0, help="Diastolic blood pressure")
     skin_thickness = st.number_input('Skin Thickness (mm)', min_value=0.0, value=20.0, help="Triceps skin fold thickness")
     insulin = st.number_input('Insulin (mu U/ml)', min_value=0.0, value=80.0, help="2-Hour serum insulin")
     bmi = st.number_input('BMI', min_value=0.0, value=25.0, help="Body Mass Index (weight in kg/(height in m)^2)")
-    dpf = st.number_input('Diabetes Pedigree Function', min_value=0.0, value=0.5, help="Likelihood of diabetes based on family history")
+    dpf = st.number_input('Diabetes Pedigree Function', min_value=0.0, value=0.5, help="Family history influence")
     age = st.number_input('Age (years)', min_value=0, value=30, help="Age in years")
 
     # Arrange inputs for prediction
     features = np.array([pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age]).reshape(1, -1)
 
-    # Prediction logic
-    if st.button('Predict'):
-        try:
-            # Scale the features before prediction
-            scaled_features = scaler.transform(features)
-            prediction = model.predict(scaled_features)
-            prediction_prob = model.predict_proba(scaled_features)[0][1]
+    # Prediction Button
+    if st.button("Predict"):
+        if any(v == 0 for v in [glucose, bmi]):
+            st.error("Please provide valid inputs for Glucose and BMI.")
+        else:
+            try:
+                scaled_features = scaler.transform(features)
+                prediction = model.predict(scaled_features)
+                prediction_prob = model.predict_proba(scaled_features)[0][1]
 
-            # Display inputs
-            st.subheader("Your Inputs:")
-            user_inputs = {
-                "Pregnancies": pregnancies,
-                "Glucose Level": glucose,
-                "Blood Pressure": blood_pressure,
-                "Skin Thickness": skin_thickness,
-                "Insulin": insulin,
-                "BMI": bmi,
-                "Diabetes Pedigree Function": dpf,
-                "Age": age,
-            }
-            st.write(user_inputs)
+                # Display results
+                st.subheader("Prediction Results")
+                if prediction == 1:
+                    result = "Positive"
+                    st.error(f"Prediction: Likely to have diabetes. Probability: {prediction_prob:.2f}")
+                else:
+                    result = "Negative"
+                    st.success(f"Prediction: Unlikely to have diabetes. Probability: {prediction_prob:.2f}")
 
-            # Display results
-            threshold = 0.5  # Default threshold
-            st.subheader("Prediction Probability:")
-            st.progress(prediction_prob)
-            if prediction_prob >= threshold:
-                result = "Positive"
-                st.error(f"The model predicts that you are likely to have diabetes. Probability: {prediction_prob:.2f}")
-            else:
-                result = "Negative"
-                st.success(f"The model predicts that you are unlikely to have diabetes. Probability: {prediction_prob:.2f}")
+                # Save to Database
+                if "username" in st.session_state:
+                    conn = sqlite3.connect(db_path)
+                    c = conn.cursor()
+                    c.execute("""
+                        INSERT INTO results (username, glucose, bmi, prediction)
+                        VALUES (?, ?, ?, ?)
+                    """, (st.session_state.username, glucose, bmi, result))
+                    conn.commit()
+                    conn.close()
+                    st.success("Prediction saved to your dashboard.")
+                else:
+                    st.warning("Log in to save your predictions.")
 
-            # Save results to database
-            if "username" in st.session_state:
-                current_dir = os.path.dirname(__file__)
-                db_path = os.path.join(current_dir, "users.db")
-                conn = sqlite3.connect(db_path)
-                c = conn.cursor()
-                c.execute("""
-                    INSERT INTO results (username, glucose, bmi, prediction)
-                    VALUES (?, ?, ?, ?)
-                """, (st.session_state.username, glucose, bmi, result))
-                conn.commit()
-                conn.close()
-                st.success("Prediction saved to your dashboard.")
-            else:
-                st.warning("You must be logged in to save your results.")
+                # Explain Prediction (SHAP)
+                st.subheader("Explainable AI Insights")
+                explainer = shap.Explainer(model, scaler.transform)
+                shap_values = explainer(scaled_features)
+                shap.summary_plot(shap_values, features, plot_type="bar", show=False)
+                st.pyplot()
 
-        except Exception as e:
-            st.error(f"Error during prediction: {e}")
+            except Exception as e:
+                st.error(f"Error during prediction: {e}")
 
-    # Feature importance visualization (if applicable)
-    if hasattr(model, 'coef_'):
-        st.subheader("Feature Importance")
-        feature_names = ['Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness', 'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age']
-        importance = model.coef_[0]
+    # Batch Prediction
+    st.subheader("Batch Prediction")
+    uploaded_file = st.file_uploader("Upload a CSV file for batch prediction", type=["csv"])
+    if uploaded_file:
+        data = pd.read_csv(uploaded_file)
+        if st.button("Predict for Uploaded Data"):
+            try:
+                scaled_data = scaler.transform(data)
+                predictions = model.predict(scaled_data)
+                data["Prediction"] = ["Positive" if p == 1 else "Negative" for p in predictions]
+                st.write(data)
 
-        # Normalize the importance for better visualization
-        normalized_importance = (importance - np.min(importance)) / (np.max(importance) - np.min(importance))
-
-        plt.figure(figsize=(8, 6))
-        plt.barh(feature_names, normalized_importance, color='skyblue')
-        plt.xlabel("Importance (Normalized)")
-        plt.ylabel("Features")
-        plt.title("Feature Importance")
-        st.pyplot(plt)
+                # Download Results
+                st.download_button("Download Predictions", data.to_csv(index=False), file_name="predictions.csv")
+            except Exception as e:
+                st.error(f"Error processing batch predictions: {e}")
