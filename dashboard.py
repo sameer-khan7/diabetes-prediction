@@ -10,14 +10,27 @@ def dashboard_page():
         st.session_state.page = "prediction"
         st.rerun()
 
-    # Add a top-right logout button
-    col1, col2 = st.columns([9, 1])  # Adjust column ratios for layout
-    with col2:
-        if st.button("Log Out", key="logout_button"):
+    # Improved Logout Button
+    st.markdown(
+        """
+        <style>
+        .logout-button {
+            display: flex;
+            justify-content: flex-end;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    logout_container = st.container()
+    with logout_container:
+        st.markdown('<div class="logout-button">', unsafe_allow_html=True)
+        if st.button("🔒 Log Out", key="logout_button"):
             st.session_state.page = "login"
             st.session_state.pop("username", None)  # Clear session data
             st.rerun()
-
+        st.markdown('</div>', unsafe_allow_html=True)
+        
     # Dashboard Title
     st.title("📊 User Dashboard")
     st.markdown("Welcome to your personal dashboard. Here you can view your saved predictions and insights.")
