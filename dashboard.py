@@ -30,7 +30,7 @@ def dashboard_page():
             st.session_state.pop("username", None)  # Clear session data
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-        
+
     # Dashboard Title
     st.title("📊 User Dashboard")
     st.markdown("Welcome to your personal dashboard. Here you can view your saved predictions and insights.")
@@ -59,15 +59,61 @@ def dashboard_page():
             col2.metric("Average BMI", f"{avg_bmi:.2f}")
             col3.metric("Positive Predictions", positive_predictions)
 
-            
+            # **1. Filter Options**
+            st.subheader("🔍 Filter Your Results")
+            with st.expander("Apply Filters"):
+                start_date = st.date_input("Start Date", key="filter_start_date")
+                end_date = st.date_input("End Date", key="filter_end_date")
+                glucose_min = st.number_input("Minimum Glucose Level", value=0.0, step=0.1, key="filter_glucose_min")
+                glucose_max = st.number_input("Maximum Glucose Level", value=200.0, step=0.1, key="filter_glucose_max")
 
-            # Display Table
-            st.subheader("📋 Saved Results")
-            st.dataframe(df, use_container_width=True)
-                    
-            # Add Charts
+            # Apply Filters
+            filtered_df = df[
+                (pd.to_datetime(df["Timestamp"]) >= pd.to_datetime(start_date)) &
+                (pd.to_datetime(df["Timestamp"]) <= pd.to_datetime(end_date)) &
+                (df["Glucose"] >= glucose_min) &
+                (df["Glucose"] <= glucose_max)
+            ]
+            st.dataframe(filtered_df, use_container_width=True)
+
+            # **2. Export Data to CSV**
+            csv = filtered_df.to_csv(index=False)
+            st.download_button(
+                label="📥 Download Filtered Results as CSV",
+                data=csv,
+                file_name="filtered_results.csv",
+                mime="text/csv",
+            )
+
+            # **3. Trend Analysis**
+            st.subheader("📊 Trend Analysis")
+            fig_trends = px.line(
+                df,
+                x="Timestamp",
+                y=["Glucose", "BMI"],
+                title="Health Metrics Trends Over Time",
+                markers=True,
+            )
+            st.plotly_chart(fig_trends, use_container_width=True)
+
+            # **4. Health Alerts**
+            st.subheader("🚨 Health Alerts")
+            if avg_glucose > 140:
+                st.warning("Your average glucose level is above normal. Consider consulting a doctor.")
+            if avg_bmi > 25:
+                st.warning("Your average BMI is in the overweight range. Consider improving your diet and exercise.")
+
+            # **5. Recommendations**
+            st.subheader("💡 Recommendations")
+            if avg_glucose > 140:
+                st.info("**Glucose Recommendation**: Reduce sugar intake and monitor carbohydrate consumption.")
+            if avg_bmi > 25:
+                st.info("**BMI Recommendation**: Incorporate regular physical activity and balanced meals.")
+            if positive_predictions > 0:
+                st.info("**Diabetes Prediction Recommendation**: Schedule a medical checkup for further evaluation.")
+
+            # **6. Add Charts**
             st.subheader("📊 Insights")
-            
             # Glucose Distribution Chart
             fig1 = px.histogram(df, x="Glucose", title="Glucose Level Distribution", nbins=10, color_discrete_sequence=["#636EFA"])
             st.plotly_chart(fig1, use_container_width=True)
@@ -83,3 +129,11 @@ def dashboard_page():
             st.info("You don't have any saved results yet. Make a prediction to see data here.")
     else:
         st.error("You must be logged in to access the dashboard.")
+
+    # **7. Admin Controls**
+    if st.session_state.username == "admin":
+        st.subheader("👩‍💼 Admin Controls")
+        conn = sqlite3.connect('users.db')
+        admin_df = pd.read_sql_query("SELECT * FROM results", conn)
+        conn.close()
+        st.dataframe(admin_df, use_container_width=True)
