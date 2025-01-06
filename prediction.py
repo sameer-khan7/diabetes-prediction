@@ -133,60 +133,33 @@ def prediction_page():
                     st.write(f"SHAP values Length: {len(shap_values)}")
                     st.write(f"SHAP values: {shap_values}")
                 
-                    # Initialize shap_values_positive_class safely
-                    shap_values_positive_class = None
+                    # Extract SHAP values for the positive class (class 1)
+                    shap_values_positive_class = shap_values[1]  # SHAP values for the positive class (class 1)
                 
-                    # Handle SHAP values for binary classification
-                    if isinstance(shap_values, list):
-                        if len(shap_values) > 1:
-                            shap_values_positive_class = shap_values[1]  # SHAP values for the positive class (class 1)
-                            st.write(f"SHAP values for positive class: {shap_values_positive_class}")
-                        else:
-                            shap_values_positive_class = shap_values[0]  # Only one class in shap_values, use the first one
-                            st.write(f"SHAP values for the single class: {shap_values_positive_class}")
-                    else:
-                        # For models with single-output (e.g., regression or single-class models)
-                        shap_values_positive_class = shap_values
+                    # Check shape and ensure it's 2D (features x instances)
+                    st.write(f"shap_values_positive_class Shape: {shap_values_positive_class.shape}")
                 
-                    if shap_values_positive_class is not None:
-                        # Inspect the shape of shap_values_positive_class
-                        st.write(f"shap_values_positive_class Shape: {shap_values_positive_class.shape}")
+                    # Display the force plot for individual prediction
+                    st.write("Feature Contributions to the Prediction (Force Plot):")
+                    shap.initjs()
+                    force_plot = shap.force_plot(
+                        explainer.expected_value[1],  # Use expected value for the positive class
+                        shap_values_positive_class[0, :],  # SHAP values for the first instance
+                        scaled_features_df.iloc[0, :],  # Use the first row of the DataFrame
+                        feature_names=feature_names
+                    )
+                    st_shap(force_plot)
                 
-                        # Handle SHAP values for both 1D and 2D arrays
-                        if shap_values_positive_class.ndim == 1:
-                            # If it's a 1D array, access the first element using a single index
-                            st.write(f"SHAP values (1D): {shap_values_positive_class}")
-                            shap_values_for_instance = shap_values_positive_class
-                        elif shap_values_positive_class.ndim == 2:
-                            # If it's a 2D array, access it using two indices (instances, features)
-                            st.write(f"SHAP values (2D): {shap_values_positive_class}")
-                            shap_values_for_instance = shap_values_positive_class[0, :]  # First instance, all features
-                        else:
-                            raise ValueError(f"Unexpected SHAP values dimensionality: {shap_values_positive_class.ndim}")
-                
-                        # Display the force plot for individual prediction
-                        st.write("Feature Contributions to the Prediction (Force Plot):")
-                        shap.initjs()
-                        force_plot = shap.force_plot(
-                            explainer.expected_value[1] if len(shap_values) > 1 else explainer.expected_value[0],
-                            shap_values_for_instance,  # SHAP values for the first instance
-                            scaled_features_df.iloc[0, :],  # Use the first row of the DataFrame
-                            feature_names=feature_names
-                        )
-                        st_shap(force_plot)
-                
-                        # Display a summary plot for feature importance
-                        st.write("Overall Feature Importance (Summary Plot):")
-                        shap.summary_plot(
-                            shap_values_for_instance, 
-                            scaled_features_df, 
-                            feature_names=feature_names, 
-                            plot_type="bar", 
-                            show=False
-                        )
-                        st.pyplot()
-                    else:
-                        st.error("SHAP values could not be accessed properly.")
+                    # Display a summary plot for feature importance
+                    st.write("Overall Feature Importance (Summary Plot):")
+                    shap.summary_plot(
+                        shap_values_positive_class, 
+                        scaled_features_df, 
+                        feature_names=feature_names, 
+                        plot_type="bar", 
+                        show=False
+                    )
+                    st.pyplot()
                 
                 except Exception as e:
                     st.error(f"Error explaining prediction: {e}")
