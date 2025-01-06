@@ -148,12 +148,24 @@ def prediction_page():
                         shap_values_positive_class = shap_values
                 
                     if shap_values_positive_class is not None:
+                        # Check if shap_values_positive_class is a 1D or 2D array and handle accordingly
+                        if shap_values_positive_class.ndim == 1:
+                            # If it's a 1D array, access the first element using a single index
+                            st.write(f"SHAP values (1D): {shap_values_positive_class}")
+                            shap_values_for_instance = shap_values_positive_class
+                        elif shap_values_positive_class.ndim == 2:
+                            # If it's a 2D array, access it using two indices (instances, features)
+                            st.write(f"SHAP values (2D): {shap_values_positive_class}")
+                            shap_values_for_instance = shap_values_positive_class[0, :]  # First instance, all features
+                        else:
+                            raise ValueError("Unexpected SHAP values dimensionality")
+                
                         # Display the force plot for individual prediction
                         st.write("Feature Contributions to the Prediction (Force Plot):")
                         shap.initjs()
                         force_plot = shap.force_plot(
                             explainer.expected_value[1] if len(shap_values) > 1 else explainer.expected_value[0],
-                            shap_values_positive_class[0, :],  # SHAP values for the first instance
+                            shap_values_for_instance,  # SHAP values for the first instance
                             scaled_features_df.iloc[0, :],  # Use the first row of the DataFrame
                             feature_names=feature_names
                         )
@@ -162,7 +174,7 @@ def prediction_page():
                         # Display a summary plot for feature importance
                         st.write("Overall Feature Importance (Summary Plot):")
                         shap.summary_plot(
-                            shap_values_positive_class, 
+                            shap_values_for_instance, 
                             scaled_features_df, 
                             feature_names=feature_names, 
                             plot_type="bar", 
@@ -174,6 +186,7 @@ def prediction_page():
                 
                 except Exception as e:
                     st.error(f"Error explaining prediction: {e}")
+
 
                 
 
