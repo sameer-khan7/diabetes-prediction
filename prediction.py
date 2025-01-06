@@ -139,16 +139,16 @@ def prediction_page():
                     # Check the shape of shap_values_positive_class
                     st.write(f"shap_values_positive_class Shape: {shap_values_positive_class.shape}")
                 
-                    # For the first instance, extract SHAP values correctly
-                    shap_values_for_instance = shap_values_positive_class[0, :]  # First instance, all features
+                    # For the first instance, extract SHAP values correctly for the positive class
+                    shap_values_for_instance = shap_values_positive_class[0, :]  # First instance, all features (for the positive class)
                 
                     # Display the force plot for individual prediction
                     st.write("Feature Contributions to the Prediction (Force Plot):")
                     shap.initjs()
                     force_plot = shap.force_plot(
                         explainer.expected_value[1] if len(explainer.expected_value) > 1 else explainer.expected_value[0],  # Use expected value for positive class
-                        shap_values_for_instance,  # SHAP values for the first instance
-                        scaled_features_df.iloc[0, :],  # Use the first row of the DataFrame
+                        shap_values_for_instance,  # SHAP values for the first instance for the positive class
+                        scaled_features_df.iloc[0, :],  # Use the first row of the DataFrame (features)
                         feature_names=feature_names
                     )
                     st_shap(force_plot)
