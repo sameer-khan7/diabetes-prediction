@@ -7,7 +7,7 @@ import dashboard
 if "page" not in st.session_state:
     st.session_state.page = "login"
 
-# Top navigation bar
+'''# Top navigation bar
 def show_top_bar():
     st.sidebar.markdown("---")
     st.sidebar.button("Log Out", on_click=logout)
@@ -17,6 +17,7 @@ def logout():
     st.session_state.page = "login"
     st.session_state.pop("username", None)  # Clear logged-in user data
     st.rerun()
+'''
 
 # Navigation logic
 if st.session_state.page == "login":
