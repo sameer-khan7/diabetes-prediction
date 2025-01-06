@@ -8,7 +8,8 @@ import pandas as pd
 import plotly.express as px
 from sklearn.preprocessing import StandardScaler
 import lime
-from lime.lime_tabular import LimeTabularExplainer  
+from lime.lime_tabular import LimeTabularExplainer
+import seaborn as sns
 
 # Helper Function for LIME Integration
 def explain_prediction_with_lime(model, scaler, features, feature_names):
