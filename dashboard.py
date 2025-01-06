@@ -9,6 +9,9 @@ def dashboard_page():
     if st.sidebar.button("Go to Prediction", key="go_to_prediction"):
         st.session_state.page = "prediction"
         st.rerun()
+    if st.sidebar.button("Go to Profile Management", key="go_to_profile"):
+        st.session_state.page = "profile"
+        st.rerun()
 
     # Improved Logout Button
     st.markdown(
