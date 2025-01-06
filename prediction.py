@@ -128,22 +128,24 @@ def prediction_page():
                     explainer = shap.TreeExplainer(model)
                     shap_values = explainer.shap_values(scaled_features_df)
                 
-                    # Display debugging information in the Streamlit app
+                    # Debugging information
                     st.write(f"Scaled Features Shape: {scaled_features_df.shape}")
                     st.write(f"SHAP values Length: {len(shap_values)}")
                 
-                    # For binary classification, shap_values contains one array per class
-                    # Use shap_values[1] for the positive class (e.g., "Diabetes")
-                    if len(shap_values) > 1:
-                        shap_values_positive_class = shap_values[1]  # SHAP values for the positive class
-                    else:
-                        shap_values_positive_class = shap_values[0]  # For single-output models
+                    # Handle SHAP values for binary classification
+                    if isinstance(shap_values, list):
+                        if len(shap_values) > 1:
+                            shap_values_positive_class = shap_values[1]  # SHAP values for the positive class (class 1)
+                            st.write(f"SHAP values for positive class: {shap_values_positive_class}")
+                        else:
+                            shap_values_positive_class = shap_values[0]  # Only one class in shap_values, use the first one
+                            st.write(f"SHAP values for the single class: {shap_values_positive_class}")
                 
                     # Display the force plot for individual prediction
                     st.write("Feature Contributions to the Prediction (Force Plot):")
                     shap.initjs()
                     force_plot = shap.force_plot(
-                        explainer.expected_value[1] if len(explainer.expected_value) > 1 else explainer.expected_value[0],
+                        explainer.expected_value[1] if len(shap_values) > 1 else explainer.expected_value[0],
                         shap_values_positive_class[0, :],  # SHAP values for the first instance
                         scaled_features_df.iloc[0, :],  # Use the first row of the DataFrame
                         feature_names=feature_names
