@@ -63,27 +63,8 @@ def dashboard_page():
 
             # Display Table
             st.subheader("📋 Saved Results")
-            #st.dataframe(df, use_container_width=True)
-
-             # Filter Options
-            st.subheader("🔍 Filter Your Results")
-            with st.expander("Apply Filters"):
-                start_date = st.date_input("Start Date", key="filter_start_date")
-                end_date = st.date_input("End Date", key="filter_end_date")
-                glucose_min = st.number_input("Minimum Glucose Level", value=0.0, step=0.1, key="filter_glucose_min")
-                glucose_max = st.number_input("Maximum Glucose Level", value=200.0, step=0.1, key="filter_glucose_max")
-            
-            # Apply Filters
-            filtered_df = df[
-                (pd.to_datetime(df["Timestamp"]) >= pd.to_datetime(start_date)) &
-                (pd.to_datetime(df["Timestamp"]) <= pd.to_datetime(end_date)) &
-                (df["Glucose"] >= glucose_min) &
-                (df["Glucose"] <= glucose_max)
-            ]
-            
-            st.dataframe(filtered_df, use_container_width=True)
-                       
-
+            st.dataframe(df, use_container_width=True)
+                    
             # Add Charts
             st.subheader("📊 Insights")
             
