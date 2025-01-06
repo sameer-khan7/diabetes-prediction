@@ -23,8 +23,8 @@ def login_page():
     with col1:
         st.subheader("Log In")
         with st.form("Login Form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
+            username = st.text_input("Username", placeholder="Enter your username")
+            password = st.text_input("Password", type="password", placeholder="Enter your password")
             login_btn = st.form_submit_button("Log In")
 
             if login_btn:
@@ -41,23 +41,25 @@ def login_page():
                     else:
                         st.error("Invalid username or password.")
                 else:
-                    st.error("Please fill out all fields.")
+                    st.error("Please fill out both fields.")
 
     # Sign-Up Section
     with col2:
         st.subheader("Sign Up")
         with st.form("Sign Up Form"):
-            new_username = st.text_input("New Username")
-            new_password = st.text_input("New Password", type="password")
+            new_username = st.text_input("New Username", placeholder="Choose a username")
+            new_full_name = st.text_input("Full Name", placeholder="Enter your full name")
+            new_email = st.text_input("Email Address", placeholder="Enter your email address")
+            new_password = st.text_input("New Password", type="password", placeholder="Choose a password")
             signup_btn = st.form_submit_button("Sign Up")
 
             if signup_btn:
-                if new_username and new_password:
+                if new_username and new_full_name and new_email and new_password:
                     try:
                         # Hash the password and insert into the database
                         hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
-                        c.execute("INSERT INTO users (username, password) VALUES (?, ?)", 
-                                  (new_username, hashed_password.decode("utf-8")))
+                        c.execute("INSERT INTO users (username, full_name, email, password) VALUES (?, ?, ?, ?)", 
+                                  (new_username, new_full_name, new_email, hashed_password.decode("utf-8")))
                         conn.commit()
                         st.success("Account created successfully! You can now log in.")
                     except sqlite3.IntegrityError:
