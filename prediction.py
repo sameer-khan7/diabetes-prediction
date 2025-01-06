@@ -121,13 +121,20 @@ def prediction_page():
                 
                     # For binary classification, shap_values contains one array per class
                     # Use shap_values[1] for the positive class (e.g., "Diabetes")
-                    shap_values_positive_class = shap_values[1] if len(shap_values) > 1 else shap_values[0]
+                    if len(shap_values) > 1:
+                        shap_values_positive_class = shap_values[1]  # SHAP values for the positive class
+                    else:
+                        shap_values_positive_class = shap_values[0]  # For single-output models
                 
-                    # Ensure the feature names match the processed features
+                    # Feature names must match the scaled features
                     feature_names = [
                         'Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness',
                         'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age'
                     ]
+                
+                    # Check lengths to ensure alignment
+                    if len(feature_names) != scaled_features.shape[1]:
+                        raise ValueError("Mismatch between feature names and input features!")
                 
                     # Display the force plot for individual prediction
                     st.write("Feature Contributions to the Prediction (Force Plot):")
@@ -142,10 +149,17 @@ def prediction_page():
                 
                     # Display a summary plot for feature importance
                     st.write("Overall Feature Importance (Summary Plot):")
-                    shap.summary_plot(shap_values_positive_class, scaled_features, feature_names=feature_names, plot_type="bar", show=False)
+                    shap.summary_plot(
+                        shap_values_positive_class, 
+                        scaled_features, 
+                        feature_names=feature_names, 
+                        plot_type="bar", 
+                        show=False
+                    )
                     st.pyplot()
                 except Exception as e:
                     st.error(f"Error explaining prediction: {e}")
+
                 
 
 
