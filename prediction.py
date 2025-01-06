@@ -128,9 +128,9 @@ def prediction_page():
                     explainer = shap.TreeExplainer(model)
                     shap_values = explainer.shap_values(scaled_features_df)
                 
-                    # Debugging step: print the shape of scaled_features and shap_values
-                    print(f"Scaled Features Shape: {scaled_features_df.shape}")
-                    print(f"SHAP values Length: {len(shap_values)}")
+                    # Display debugging information in the Streamlit app
+                    st.write(f"Scaled Features Shape: {scaled_features_df.shape}")
+                    st.write(f"SHAP values Length: {len(shap_values)}")
                 
                     # For binary classification, shap_values contains one array per class
                     # Use shap_values[1] for the positive class (e.g., "Diabetes")
