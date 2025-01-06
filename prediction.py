@@ -122,6 +122,25 @@ def prediction_page():
                     st.success("Prediction saved to your dashboard.")
                 else:
                     st.warning("Log in to save your predictions.")
+            
+                # Calculate Health Score
+                health_score = 100 - (0.5 * glucose + 0.3 * bmi + 0.2 * age)  # Example formula
+                health_score = max(0, min(health_score, 100))  # Keep the score between 0 and 100
+                
+                # Display Health Score
+                st.subheader("Your Health Score")
+                st.write(f"Your Health Score is: {health_score:.2f}/100")
+                
+                # Provide Suggestions Based on Health Score
+                if health_score < 50:
+                    st.warning("Your health score is low. Consider consulting a doctor and improving your diet and exercise.")
+                elif 50 <= health_score < 80:
+                    st.info("Your health score is moderate. Maintain a balanced diet and stay active to improve.")
+                else:
+                    st.success("Your health score looks great! Keep up the good work!")
+                
+
+            
 
             except Exception as e:
                 st.error(f"Error during prediction: {e}")
