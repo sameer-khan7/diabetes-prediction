@@ -111,13 +111,19 @@ def prediction_page():
                 else:
                     st.warning("Log in to save your predictions.")
 
-                # Explain Prediction (SHAP) for Tree-Based Models
+                # Explanation of Prediction (SHAP) for Tree-Based Models
                 st.subheader("Explainable AI Insights")
                 
                 try:
                     # Use TreeExplainer for tree-based models like Random Forest
                     explainer = shap.TreeExplainer(model)
                     shap_values = explainer.shap_values(scaled_features)
+                
+                    # Debugging step: print the shape of scaled_features and shap_values
+                    print(f"Scaled Features Shape: {scaled_features.shape}")
+                    print(f"SHAP values Length: {len(shap_values)}")
+                    if isinstance(shap_values, list):
+                        print(f"SHAP values for positive class: {shap_values[1] if len(shap_values) > 1 else shap_values[0]}")
                 
                     # For binary classification, shap_values contains one array per class
                     # Use shap_values[1] for the positive class (e.g., "Diabetes")
@@ -157,6 +163,7 @@ def prediction_page():
                         show=False
                     )
                     st.pyplot()
+                
                 except Exception as e:
                     st.error(f"Error explaining prediction: {e}")
 
