@@ -23,8 +23,8 @@ if "page" not in st.session_state:
 if st.session_state.page == "login":
     login.login_page()
 elif st.session_state.page == "prediction":
-    show_top_bar()  # Show logout button in the sidebar
+#    show_top_bar()  # Show logout button in the sidebar
     prediction.prediction_page()
 elif st.session_state.page == "dashboard":
-    show_top_bar()  # Show logout button in the sidebar
+#    show_top_bar()  # Show logout button in the sidebar
     dashboard.dashboard_page()
