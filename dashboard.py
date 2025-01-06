@@ -67,23 +67,43 @@ def dashboard_page():
                 glucose_min = st.number_input("Minimum Glucose Level", value=0.0, step=0.1, key="filter_glucose_min")
                 glucose_max = st.number_input("Maximum Glucose Level", value=200.0, step=0.1, key="filter_glucose_max")
 
-            # Apply Filters
-            filtered_df = df[
-                (pd.to_datetime(df["Timestamp"]) >= pd.to_datetime(start_date)) &
-                (pd.to_datetime(df["Timestamp"]) <= pd.to_datetime(end_date)) &
-                (df["Glucose"] >= glucose_min) &
-                (df["Glucose"] <= glucose_max)
-            ]
-            st.dataframe(filtered_df, use_container_width=True)
+            # Display Original Data by Default
+            st.subheader("📋 Saved Results")
+            st.dataframe(df, use_container_width=True)  # Display all data initially
+            
+            # Filter Options
+            st.subheader("🔍 Filter Your Results")
+            with st.expander("Apply Filters"):
+                start_date = st.date_input("Start Date", key="filter_start_date")
+                end_date = st.date_input("End Date", key="filter_end_date")
+                glucose_min = st.number_input("Minimum Glucose Level", value=0.0, step=0.1, key="filter_glucose_min")
+                glucose_max = st.number_input("Maximum Glucose Level", value=200.0, step=0.1, key="filter_glucose_max")
+            
+                # Apply Filters Button
+                if st.button("Apply Filters"):
+                    filtered_df = df[
+                        (pd.to_datetime(df["Timestamp"]) >= pd.to_datetime(start_date)) &
+                        (pd.to_datetime(df["Timestamp"]) <= pd.to_datetime(end_date)) &
+                        (df["Glucose"] >= glucose_min) &
+                        (df["Glucose"] <= glucose_max)
+                    ]
+            
+                    # Display Filtered Data
+                    st.subheader("📋 Filtered Results")
+                    if not filtered_df.empty:
+                        st.dataframe(filtered_df, use_container_width=True)
+            
+                        # Download Filtered Results
+                        csv = filtered_df.to_csv(index=False)
+                        st.download_button(
+                            label="📥 Download Filtered Results as CSV",
+                            data=csv,
+                            file_name="filtered_results.csv",
+                            mime="text/csv",
+                        )
+                    else:
+                        st.warning("No data matches the applied filters. Please adjust your filter criteria.")
 
-            # **2. Export Data to CSV**
-            csv = filtered_df.to_csv(index=False)
-            st.download_button(
-                label="📥 Download Filtered Results as CSV",
-                data=csv,
-                file_name="filtered_results.csv",
-                mime="text/csv",
-            )
 
             # **3. Trend Analysis**
             st.subheader("📊 Trend Analysis")
