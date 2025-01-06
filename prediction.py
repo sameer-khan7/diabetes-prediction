@@ -115,15 +115,22 @@ def prediction_page():
                 st.subheader("Explainable AI Insights")
                 
                 try:
+                    # Feature names must match the scaled features
+                    feature_names = [
+                        'Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness',
+                        'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age'
+                    ]
+                
+                    # Convert the scaled_features array to DataFrame with column names
+                    scaled_features_df = pd.DataFrame(scaled_features, columns=feature_names)
+                
                     # Use TreeExplainer for tree-based models like Random Forest
                     explainer = shap.TreeExplainer(model)
-                    shap_values = explainer.shap_values(scaled_features)
+                    shap_values = explainer.shap_values(scaled_features_df)
                 
                     # Debugging step: print the shape of scaled_features and shap_values
-                    print(f"Scaled Features Shape: {scaled_features.shape}")
+                    print(f"Scaled Features Shape: {scaled_features_df.shape}")
                     print(f"SHAP values Length: {len(shap_values)}")
-                    if isinstance(shap_values, list):
-                        print(f"SHAP values for positive class: {shap_values[1] if len(shap_values) > 1 else shap_values[0]}")
                 
                     # For binary classification, shap_values contains one array per class
                     # Use shap_values[1] for the positive class (e.g., "Diabetes")
@@ -132,23 +139,13 @@ def prediction_page():
                     else:
                         shap_values_positive_class = shap_values[0]  # For single-output models
                 
-                    # Feature names must match the scaled features
-                    feature_names = [
-                        'Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness',
-                        'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age'
-                    ]
-                
-                    # Check lengths to ensure alignment
-                    if len(feature_names) != scaled_features.shape[1]:
-                        raise ValueError("Mismatch between feature names and input features!")
-                
                     # Display the force plot for individual prediction
                     st.write("Feature Contributions to the Prediction (Force Plot):")
                     shap.initjs()
                     force_plot = shap.force_plot(
                         explainer.expected_value[1] if len(explainer.expected_value) > 1 else explainer.expected_value[0],
                         shap_values_positive_class[0, :],  # SHAP values for the first instance
-                        scaled_features[0, :],  # Scaled feature values for the first instance
+                        scaled_features_df.iloc[0, :],  # Use the first row of the DataFrame
                         feature_names=feature_names
                     )
                     st_shap(force_plot)
@@ -157,7 +154,7 @@ def prediction_page():
                     st.write("Overall Feature Importance (Summary Plot):")
                     shap.summary_plot(
                         shap_values_positive_class, 
-                        scaled_features, 
+                        scaled_features_df, 
                         feature_names=feature_names, 
                         plot_type="bar", 
                         show=False
