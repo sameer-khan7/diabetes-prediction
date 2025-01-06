@@ -138,12 +138,39 @@ def prediction_page():
                     st.info("Your health score is moderate. Maintain a balanced diet and stay active to improve.")
                 else:
                     st.success("Your health score looks great! Keep up the good work!")
-                
-
-            
 
             except Exception as e:
                 st.error(f"Error during prediction: {e}")
+
+    # EDA Section
+    if st.sidebar.checkbox("Explore Dataset"):
+        st.subheader("Dataset Insights")
+        try:
+            current_dir = os.path.dirname(__file__)
+            dataset_path = os.path.join(current_dir, "diabetes.csv")  # Update with your dataset path
+            dataset = pd.read_csv(dataset_path)
+    
+            # Display Dataset
+            st.write("First 5 Rows of the Dataset:")
+            st.dataframe(dataset.head())
+    
+            # Correlation Heatmap
+            st.subheader("Correlation Heatmap")
+            correlation_matrix = dataset.corr()
+            fig, ax = plt.subplots(figsize=(10, 8))
+            sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", ax=ax)
+            st.pyplot(fig)
+    
+            # Feature Distribution
+            st.subheader("Feature Distributions")
+            selected_feature = st.selectbox("Select a Feature to View Distribution", dataset.columns)
+            fig, ax = plt.subplots()
+            sns.histplot(dataset[selected_feature], kde=True, ax=ax, color="blue")
+            ax.set_title(f"Distribution of {selected_feature}")
+            st.pyplot(fig)
+    
+        except FileNotFoundError:
+            st.error("Dataset file not found. Please upload or specify the correct path.")
 
     # Batch Prediction
     st.subheader("Batch Prediction")
