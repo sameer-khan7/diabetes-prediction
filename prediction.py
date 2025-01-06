@@ -106,12 +106,30 @@ def prediction_page():
                 else:
                     st.warning("Log in to save your predictions.")
 
-                # Explain Prediction (SHAP)
+                # Explain Prediction (SHAP) for Tree-Based Models
                 st.subheader("Explainable AI Insights")
-                explainer = shap.Explainer(model, scaler.transform)
-                shap_values = explainer(scaled_features)
-                shap.summary_plot(shap_values, features, plot_type="bar", show=False)
-                st.pyplot()
+                
+                try:
+                    # Use TreeExplainer for tree-based models like Random Forest
+                    explainer = shap.TreeExplainer(model)
+                    shap_values = explainer.shap_values(scaled_features)
+                
+                    # Plot SHAP summary plot for individual prediction
+                    st.write("Feature Contributions to the Prediction:")
+                    shap.initjs()
+                    shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], features, feature_names=[
+                        'Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness',
+                        'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age'
+                    ])
+                    st.pyplot()
+                
+                    # Optional: SHAP summary bar plot for global interpretability
+                    st.write("Overall Feature Importance:")
+                    shap.summary_plot(shap_values, features, plot_type="bar", show=False)
+                    st.pyplot()
+                except Exception as e:
+                    st.error(f"Error explaining prediction: {e}")
+
 
             except Exception as e:
                 st.error(f"Error during prediction: {e}")
