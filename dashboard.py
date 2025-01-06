@@ -6,10 +6,10 @@ import plotly.express as px
 def dashboard_page():
     # Sidebar Navigation
     st.sidebar.header("Navigation")
-    if st.sidebar.button("Go to Prediction", key="go_to_prediction"):
+    if st.sidebar.button("Prediction", key="go_to_prediction"):
         st.session_state.page = "prediction"
         st.rerun()
-    if st.sidebar.button("Go to Profile Management", key="go_to_profile"):
+    if st.sidebar.button("Profile Management", key="go_to_profile"):
         st.session_state.page = "profile"
         st.rerun()
 
