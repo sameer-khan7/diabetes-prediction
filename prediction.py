@@ -9,6 +9,11 @@ import plotly.express as px
 from sklearn.preprocessing import StandardScaler
 import shap
 
+# Helper Function for SHAP Integration
+def st_shap(plot, height=None):
+    """Render a SHAP force plot in Streamlit."""
+    shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
+    components.html(shap_html, height=height)
 
 def prediction_page():
     # Paths to the model and scaler
@@ -114,21 +119,37 @@ def prediction_page():
                     explainer = shap.TreeExplainer(model)
                     shap_values = explainer.shap_values(scaled_features)
                 
-                    # Plot SHAP summary plot for individual prediction
-                    st.write("Feature Contributions to the Prediction:")
+                    # For binary classification, SHAP provides shap_values for both classes.
+                    # We use shap_values[1] for the positive class (e.g., "Diabetes").
+                    if len(shap_values) > 1:  # Check if shap_values contains separate arrays for each class
+                        shap_values_positive_class = shap_values[1]  # Use the values for the positive class
+                    else:
+                        shap_values_positive_class = shap_values[0]  # Use the single output for non-probabilistic models
+                
+                    # Display the force plot for individual prediction
+                    st.write("Feature Contributions to the Prediction (Force Plot):")
                     shap.initjs()
-                    shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], features, feature_names=[
+                    force_plot = shap.force_plot(
+                        explainer.expected_value[1] if len(explainer.expected_value) > 1 else explainer.expected_value[0],
+                        shap_values_positive_class[0, :],  # SHAP values for the first instance
+                        features[0, :],  # Feature values for the first instance
+                        feature_names=[
+                            'Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness',
+                            'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age'
+                        ]
+                    )
+                    st_shap(force_plot)
+                
+                    # Display a summary plot for feature importance
+                    st.write("Overall Feature Importance (Summary Plot):")
+                    shap.summary_plot(shap_values_positive_class, features, feature_names=[
                         'Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness',
                         'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age'
-                    ])
-                    st.pyplot()
-                
-                    # Optional: SHAP summary bar plot for global interpretability
-                    st.write("Overall Feature Importance:")
-                    shap.summary_plot(shap_values, features, plot_type="bar", show=False)
+                    ], plot_type="bar", show=False)
                     st.pyplot()
                 except Exception as e:
                     st.error(f"Error explaining prediction: {e}")
+
 
 
             except Exception as e:
