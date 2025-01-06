@@ -18,6 +18,27 @@ def profile_page():
         st.session_state.page = "prediction"
         st.rerun()  # To reload the app with the selected page
 
+    # Logout Button
+    st.markdown(
+        """
+        <style>
+        .logout-button {
+            display: flex;
+            justify-content: flex-end;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    logout_container = st.container()
+    with logout_container:
+        st.markdown('<div class="logout-button">', unsafe_allow_html=True)
+        if st.button("🔒 Log Out", key="logout_button"):
+            st.session_state.page = "login"
+            st.session_state.pop("username", None)  # Clear session data
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
     # Profile Page Content
     st.title("👤 User Profile Management")
     
