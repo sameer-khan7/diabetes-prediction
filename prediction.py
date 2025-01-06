@@ -131,6 +131,7 @@ def prediction_page():
                     # Debugging information
                     st.write(f"Scaled Features Shape: {scaled_features_df.shape}")
                     st.write(f"SHAP values Length: {len(shap_values)}")
+                    st.write(f"SHAP values: {shap_values}")
                 
                     # Initialize shap_values_positive_class safely
                     shap_values_positive_class = None
@@ -148,7 +149,10 @@ def prediction_page():
                         shap_values_positive_class = shap_values
                 
                     if shap_values_positive_class is not None:
-                        # Check if shap_values_positive_class is a 1D or 2D array and handle accordingly
+                        # Inspect the shape of shap_values_positive_class
+                        st.write(f"shap_values_positive_class Shape: {shap_values_positive_class.shape}")
+                
+                        # Handle SHAP values for both 1D and 2D arrays
                         if shap_values_positive_class.ndim == 1:
                             # If it's a 1D array, access the first element using a single index
                             st.write(f"SHAP values (1D): {shap_values_positive_class}")
@@ -158,7 +162,7 @@ def prediction_page():
                             st.write(f"SHAP values (2D): {shap_values_positive_class}")
                             shap_values_for_instance = shap_values_positive_class[0, :]  # First instance, all features
                         else:
-                            raise ValueError("Unexpected SHAP values dimensionality")
+                            raise ValueError(f"Unexpected SHAP values dimensionality: {shap_values_positive_class.ndim}")
                 
                         # Display the force plot for individual prediction
                         st.write("Feature Contributions to the Prediction (Force Plot):")
