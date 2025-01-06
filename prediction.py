@@ -133,17 +133,26 @@ def prediction_page():
                     st.write(f"SHAP values Length: {len(shap_values)}")
                     st.write(f"SHAP values: {shap_values}")
                 
-                    # Extract SHAP values for the positive class (class 1)
-                    shap_values_positive_class = shap_values[1]  # SHAP values for the positive class (class 1)
+                    # Check if there is only one class and adjust indexing
+                    if isinstance(shap_values, list):
+                        # Handle binary classification with 2 classes
+                        if len(shap_values) > 1:
+                            shap_values_positive_class = shap_values[1]  # SHAP values for the positive class (class 1)
+                        else:
+                            # If only one class exists, use the only available SHAP values
+                            shap_values_positive_class = shap_values[0]  # Only one class, use the first (and only) array
+                    else:
+                        # If it's not a list, it's likely a single-output model, use the only available SHAP values
+                        shap_values_positive_class = shap_values
                 
-                    # Check shape and ensure it's 2D (features x instances)
+                    # Check the shape of shap_values_positive_class
                     st.write(f"shap_values_positive_class Shape: {shap_values_positive_class.shape}")
                 
                     # Display the force plot for individual prediction
                     st.write("Feature Contributions to the Prediction (Force Plot):")
                     shap.initjs()
                     force_plot = shap.force_plot(
-                        explainer.expected_value[1],  # Use expected value for the positive class
+                        explainer.expected_value[0],  # Use the expected value for the first (only) class
                         shap_values_positive_class[0, :],  # SHAP values for the first instance
                         scaled_features_df.iloc[0, :],  # Use the first row of the DataFrame
                         feature_names=feature_names
