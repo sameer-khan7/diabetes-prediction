@@ -123,18 +123,6 @@ def prediction_page():
                 else:
                     st.warning("Log in to save your predictions.")
 
-                # Explain Prediction with LIME
- #               st.subheader("Explainable AI Insights (LIME)")
-
-                # Feature names
- #               feature_names = [
- #                   'Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness',
- #                   'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age'
-                ]
-                
-#                explain_prediction_with_lime(model, scaler, scaled_features, feature_names)
-
-
             except Exception as e:
                 st.error(f"Error during prediction: {e}")
 
