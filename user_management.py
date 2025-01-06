@@ -6,22 +6,17 @@ import os
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'users.db')
 
 def profile_page():
-    # Sidebar with navigation links
+    # Sidebar with clickable buttons for navigation
     st.sidebar.title("Navigation")
-    pages = {
-        "Dashboard": "dashboard",
-        "Prediction": "prediction",
-        "Profile Management": "profile"
-    }
-    selection = st.sidebar.radio("Go to", list(pages.keys()))
     
-    # Display the corresponding page based on the selection
-    if selection == "Dashboard":
+    # Creating clickable buttons for Dashboard and Prediction pages
+    if st.sidebar.button("Dashboard"):
         st.session_state.page = "dashboard"
-    elif selection == "Prediction":
+        st.rerun()  # To reload the app with the selected page
+
+    if st.sidebar.button("Prediction"):
         st.session_state.page = "prediction"
-    else:
-        st.session_state.page = "profile"
+        st.rerun()  # To reload the app with the selected page
 
     # Profile Page Content
     st.title("👤 User Profile Management")
