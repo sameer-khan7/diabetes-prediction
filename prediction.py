@@ -76,6 +76,9 @@ def prediction_page():
     if st.sidebar.button("Go to Dashboard", key="go_to_dashboard"):
         st.session_state.page = "dashboard"
         st.rerun()
+    if st.sidebar.button("Profile Management", key="go_to_profile"):
+        st.session_state.page = "profile"
+        st.rerun()
 
     # Input Section
     st.subheader("Input Your Data")
