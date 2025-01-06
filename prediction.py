@@ -9,11 +9,22 @@ import plotly.express as px
 from sklearn.preprocessing import StandardScaler
 import shap
 
-# Helper Function for SHAP Integration
-def st_shap(plot, height=None):
-    """Render a SHAP force plot in Streamlit."""
-    shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
-    components.html(shap_html, height=height)
+# Helper Function for LIME Integration
+def explain_prediction_with_lime(model, scaler, features, feature_names):
+    # Create a LIME explainer
+    explainer = LimeTabularExplainer(
+        training_data=np.array(scaler.inverse_transform(features)),
+        feature_names=feature_names,
+        class_names=["No Diabetes", "Diabetes"],
+        mode="classification"
+    )
+    
+    # Explain the prediction
+    explanation = explainer.explain_instance(features[0], model.predict_proba, num_features=len(feature_names))
+    
+    # Plot the explanation
+    fig = explanation.as_pyplot_figure()
+    st.pyplot(fig)
 
 def prediction_page():
     # Paths to the model and scaler
@@ -111,63 +122,16 @@ def prediction_page():
                 else:
                     st.warning("Log in to save your predictions.")
 
-                # Explanation of Prediction (SHAP) for Tree-Based Models
-                st.subheader("Explainable AI Insights")
-                
-                try:
-                    # Feature names must match the scaled features
-                    feature_names = [
-                        'Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness',
-                        'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age'
-                    ]
-                
-                    # Convert the scaled_features array to DataFrame with column names
-                    scaled_features_df = pd.DataFrame(scaled_features, columns=feature_names)
-                
-                    # Use TreeExplainer for tree-based models like Random Forest
-                    explainer = shap.TreeExplainer(model)
-                    shap_values = explainer.shap_values(scaled_features_df)
-                
-                    # Debugging information
-                    st.write(f"Scaled Features Shape: {scaled_features_df.shape}")
-                    st.write(f"SHAP values Length: {len(shap_values)}")
-                    st.write(f"SHAP values: {shap_values}")
-                
-                    # Extract SHAP values for the positive class (index 1) if available
-                    shap_values_positive_class = shap_values[1] if len(shap_values) > 1 else shap_values[0]
-                
-                    # Check the shape of shap_values_positive_class
-                    st.write(f"shap_values_positive_class Shape: {shap_values_positive_class.shape}")
-                
-                    # For the first instance, extract SHAP values correctly for the positive class
-                    shap_values_for_instance = shap_values_positive_class[0, :]  # First instance, all features (for the positive class)
-                
-                    # Display the force plot for individual prediction
-                    st.write("Feature Contributions to the Prediction (Force Plot):")
-                    shap.initjs()
-                    force_plot = shap.force_plot(
-                        explainer.expected_value[1] if len(explainer.expected_value) > 1 else explainer.expected_value[0],  # Use expected value for positive class
-                        shap_values_for_instance,  # SHAP values for the first instance for the positive class
-                        scaled_features_df.iloc[0, :],  # Use the first row of the DataFrame (features)
-                        feature_names=feature_names
-                    )
-                    st_shap(force_plot)
-                
-                    # Display a summary plot for feature importance
-                    st.write("Overall Feature Importance (Summary Plot):")
-                    shap.summary_plot(
-                        shap_values_positive_class, 
-                        scaled_features_df, 
-                        feature_names=feature_names, 
-                        plot_type="bar", 
-                        show=False
-                    )
-                    st.pyplot()
-                
-                except Exception as e:
-                    st.error(f"Error explaining prediction: {e}")
+                # Explain Prediction with LIME
+                st.subheader("Explainable AI Insights (LIME)")
 
+                # Feature names
+                feature_names = [
+                    'Pregnancies', 'Glucose', 'Blood Pressure', 'Skin Thickness',
+                    'Insulin', 'BMI', 'Diabetes Pedigree Function', 'Age'
+                ]
                 
+                explain_prediction_with_lime(model, scaler, scaled_features, feature_names)
 
 
             except Exception as e:
