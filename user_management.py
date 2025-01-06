@@ -6,6 +6,24 @@ import os
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'users.db')
 
 def profile_page():
+    # Sidebar with navigation links
+    st.sidebar.title("Navigation")
+    pages = {
+        "Dashboard": "dashboard",
+        "Prediction": "prediction",
+        "Profile Management": "profile"
+    }
+    selection = st.sidebar.radio("Go to", list(pages.keys()))
+    
+    # Display the corresponding page based on the selection
+    if selection == "Dashboard":
+        st.session_state.page = "dashboard"
+    elif selection == "Prediction":
+        st.session_state.page = "prediction"
+    else:
+        st.session_state.page = "profile"
+
+    # Profile Page Content
     st.title("👤 User Profile Management")
     
     if "username" not in st.session_state:
