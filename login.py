@@ -43,31 +43,53 @@ def login_page():
                 else:
                     st.error("Please fill out both fields.")
 
-    # Sign-Up Section
-    with col2:
-        st.subheader("Sign Up")
-        with st.form("Sign Up Form"):
-            new_username = st.text_input("New Username", placeholder="Choose a username")
-            new_full_name = st.text_input("Full Name", placeholder="Enter your full name")
-            new_email = st.text_input("Email Address", placeholder="Enter your email address")
-            new_password = st.text_input("New Password", type="password", placeholder="Choose a password")
-            signup_btn = st.form_submit_button("Sign Up")
+    # Reset Password Section
+    with col1:
+        st.subheader("Forgot Password?")
+        reset_email = st.text_input("Enter your registered email address", placeholder="Enter your email")
+        reset_btn = st.button("Reset Password")
 
-            if signup_btn:
-                if new_username and new_full_name and new_email and new_password:
-                    try:
-                        # Hash the password and insert into the database
-                        hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
-                        c.execute("INSERT INTO users (username, full_name, email, password) VALUES (?, ?, ?, ?)", 
-                                  (new_username, new_full_name, new_email, hashed_password.decode("utf-8")))
-                        conn.commit()
-                        st.success("Account created successfully! You can now log in.")
-                    except sqlite3.IntegrityError:
-                        st.error("Username already exists. Please choose a different username.")
-                    except Exception as e:
-                        st.error(f"Error during sign-up: {e}")
+        if reset_btn:
+            if reset_email:
+                # Mock-up: In reality, you would send an email with a reset link
+                c.execute("SELECT username FROM users WHERE email = ?", (reset_email,))
+                user = c.fetchone()
+                if user:
+                    st.success(f"Password reset instructions have been sent to {reset_email}.")
                 else:
-                    st.error("Please fill out all fields.")
+                    st.error("No user found with this email.")
+            else:
+                st.error("Please enter your email address.")
+
+    # Sign-Up Section (Initially hidden)
+    with col2:
+        if st.button("Sign Up (Expand)"):
+            st.session_state.signup_expanded = not st.session_state.get("signup_expanded", False)
+
+        if st.session_state.get("signup_expanded", False):
+            st.subheader("Sign Up")
+            with st.form("Sign Up Form"):
+                new_username = st.text_input("New Username", placeholder="Choose a username")
+                new_full_name = st.text_input("Full Name", placeholder="Enter your full name")
+                new_email = st.text_input("Email Address", placeholder="Enter your email address")
+                new_password = st.text_input("New Password", type="password", placeholder="Choose a password")
+                signup_btn = st.form_submit_button("Sign Up")
+
+                if signup_btn:
+                    if new_username and new_full_name and new_email and new_password:
+                        try:
+                            # Hash the password and insert into the database
+                            hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
+                            c.execute("INSERT INTO users (username, full_name, email, password) VALUES (?, ?, ?, ?)", 
+                                      (new_username, new_full_name, new_email, hashed_password.decode("utf-8")))
+                            conn.commit()
+                            st.success("Account created successfully! You can now log in.")
+                        except sqlite3.IntegrityError:
+                            st.error("Username already exists. Please choose a different username.")
+                        except Exception as e:
+                            st.error(f"Error during sign-up: {e}")
+                    else:
+                        st.error("Please fill out all fields.")
 
     # Footer
     st.markdown("---")
