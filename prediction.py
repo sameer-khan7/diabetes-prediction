@@ -29,6 +29,27 @@ def prediction_page():
         st.session_state.page = "dashboard"  # Update session state for navigation
         st.rerun()  # Trigger rerun to navigate to the dashboard page
 
+    # Improved Logout Button
+    st.markdown(
+        """
+        <style>
+        .logout-button {
+            display: flex;
+            justify-content: flex-end;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    logout_container = st.container()
+    with logout_container:
+        st.markdown('<div class="logout-button">', unsafe_allow_html=True)
+        if st.button("🔒 Log Out", key="logout_button"):
+            st.session_state.page = "login"
+            st.session_state.pop("username", None)  # Clear session data
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
     # Page title
     st.title('Diabetes Prediction App')
     st.write("This app predicts the likelihood of diabetes based on user inputs.")
