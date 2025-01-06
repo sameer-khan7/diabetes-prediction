@@ -59,14 +59,6 @@ def dashboard_page():
             col2.metric("Average BMI", f"{avg_bmi:.2f}")
             col3.metric("Positive Predictions", positive_predictions)
 
-            # **1. Filter Options**
-            st.subheader("🔍 Filter Your Results")
-            with st.expander("Apply Filters"):
-                start_date = st.date_input("Start Date", key="filter_start_date")
-                end_date = st.date_input("End Date", key="filter_end_date")
-                glucose_min = st.number_input("Minimum Glucose Level", value=0.0, step=0.1, key="filter_glucose_min")
-                glucose_max = st.number_input("Maximum Glucose Level", value=200.0, step=0.1, key="filter_glucose_max")
-
             # Display Original Data by Default
             st.subheader("📋 Saved Results")
             st.dataframe(df, use_container_width=True)  # Display all data initially
