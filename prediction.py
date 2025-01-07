@@ -13,29 +13,24 @@ import seaborn as sns
 
 # Helper Function for LIME Integration
 def explain_prediction_with_lime(model, scaler, features, feature_names):
-    # Create a LIME explainer
     explainer = LimeTabularExplainer(
         training_data=np.array(scaler.inverse_transform(features)),
         feature_names=feature_names,
         class_names=["No Diabetes", "Diabetes"],
         mode="classification"
     )
-    
-    # Explain the prediction
     explanation = explainer.explain_instance(features[0], model.predict_proba, num_features=len(feature_names))
-    
-    # Plot the explanation
     fig = explanation.as_pyplot_figure()
     st.pyplot(fig)
 
 def prediction_page():
-    # Paths to the model and scaler
+    # Paths to the model, scaler, and database
     current_dir = os.path.dirname(__file__)
     model_path = os.path.join(current_dir, 'model.pkl')
     scaler_path = os.path.join(current_dir, 'scaler.pkl')
     db_path = os.path.join(current_dir, "users.db")
 
-    # Load the trained model and scaler with error handling
+    # Load the trained model and scaler
     try:
         model = pickle.load(open(model_path, 'rb'))
         scaler = pickle.load(open(scaler_path, 'rb'))
@@ -80,16 +75,32 @@ def prediction_page():
         st.session_state.page = "profile"
         st.rerun()
 
+    # Retrieve user data from the database
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute("SELECT gender, age FROM users WHERE username = ?", (st.session_state.get("username"),))
+    user_data = c.fetchone()
+    conn.close()
+
+    gender = user_data[0] if user_data else "Other"
+    user_age = user_data[1] if user_data else 30  # Default age if not found
+
     # Input Section
     st.subheader("Input Your Data")
-    pregnancies = st.number_input('Pregnancies', min_value=0, value=0, help="Number of times pregnant")
+
+    # Show pregnancies input only for female users
+    if gender == "Female":
+        pregnancies = st.number_input('Pregnancies', min_value=0, value=0, help="Number of times pregnant")
+    else:
+        pregnancies = 0  # Default value for male users
+
     glucose = st.number_input('Glucose Level', min_value=0.0, value=120.0, help="Plasma glucose concentration")
     blood_pressure = st.number_input('Blood Pressure (mm Hg)', min_value=0.0, value=70.0, help="Diastolic blood pressure")
     skin_thickness = st.number_input('Skin Thickness (mm)', min_value=0.0, value=20.0, help="Triceps skin fold thickness")
     insulin = st.number_input('Insulin (mu U/ml)', min_value=0.0, value=80.0, help="2-Hour serum insulin")
     bmi = st.number_input('BMI', min_value=0.0, value=25.0, help="Body Mass Index (weight in kg/(height in m)^2)")
     dpf = st.number_input('Diabetes Pedigree Function', min_value=0.0, value=0.5, help="Family history influence")
-    age = st.number_input('Age (years)', min_value=0, value=30, help="Age in years")
+    age = st.number_input('Age (years)', min_value=0, value=user_age, help="Age in years", disabled=True)
 
     # Arrange inputs for prediction
     features = np.array([pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age]).reshape(1, -1)
@@ -126,20 +137,20 @@ def prediction_page():
                     st.success("Prediction saved to your dashboard.")
                 else:
                     st.warning("Log in to save your predictions.")
-            
-                # Calculate Health Score
+
+                # Health Score Calculation
                 health_score = 100 - (0.5 * glucose + 0.3 * bmi + 0.2 * age)  # Example formula
-                health_score = max(0, min(health_score, 100))  # Keep the score between 0 and 100
-                
+                health_score = max(0, min(health_score, 100))
+
                 # Display Health Score
                 st.subheader("Your Health Score")
                 st.write(f"Your Health Score is: {health_score:.2f}/100")
-                
+
                 # Provide Suggestions Based on Health Score
                 if health_score < 50:
-                    st.warning("Your health score is low. Consider consulting a doctor and improving your diet and exercise.")
+                    st.warning("Your health score is low. Consult a doctor and improve your diet and exercise.")
                 elif 50 <= health_score < 80:
-                    st.info("Your health score is moderate. Maintain a balanced diet and stay active to improve.")
+                    st.info("Your health score is moderate. Maintain a balanced diet and stay active.")
                 else:
                     st.success("Your health score looks great! Keep up the good work!")
 
