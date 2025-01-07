@@ -2,6 +2,10 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 import plotly.express as px
+import os
+
+# Define the database path
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'users.db')
 
 def dashboard_page():
     # Sidebar Navigation
@@ -38,14 +42,29 @@ def dashboard_page():
     st.title("📊 User Dashboard")
     st.markdown("Welcome to your personal dashboard. Here you can view your saved predictions and insights.")
 
-    # Fetch results from the database
+    # Fetch user details and results from the database
     if "username" in st.session_state:
-        conn = sqlite3.connect('users.db')
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
+
+        # Fetch user details
+        c.execute("SELECT full_name, gender, age FROM users WHERE username = ?", (st.session_state.username,))
+        user_details = c.fetchone()
+
+        # Fetch user predictions
         c.execute("SELECT glucose, bmi, prediction, timestamp FROM results WHERE username = ?", (st.session_state.username,))
         results = c.fetchall()
         conn.close()
 
+        # Display user details
+        if user_details:
+            full_name, gender, age = user_details
+            st.subheader("👤 User Information")
+            st.markdown(f"**Full Name:** {full_name}")
+            st.markdown(f"**Gender:** {gender}")
+            st.markdown(f"**Age:** {age} years")
+
+        # Check if there are any saved results
         if results:
             # Convert results to a DataFrame
             df = pd.DataFrame(results, columns=["Glucose", "BMI", "Prediction", "Timestamp"])
@@ -64,8 +83,8 @@ def dashboard_page():
 
             # Display Original Data by Default
             st.subheader("📋 Saved Results")
-            st.dataframe(df, use_container_width=True)  # Display all data initially
-            
+            st.dataframe(df, use_container_width=True)
+
             # Filter Options
             st.subheader("🔍 Filter Your Results")
             with st.expander("Apply Filters"):
@@ -73,21 +92,21 @@ def dashboard_page():
                 end_date = st.date_input("End Date", key="filter_end_date")
                 glucose_min = st.number_input("Minimum Glucose Level", value=0.0, step=0.1, key="filter_glucose_min")
                 glucose_max = st.number_input("Maximum Glucose Level", value=200.0, step=0.1, key="filter_glucose_max")
-            
+
                 # Apply Filters Button
                 if st.button("Apply Filters"):
                     filtered_df = df[
                         (pd.to_datetime(df["Timestamp"]) >= pd.to_datetime(start_date)) &
                         (pd.to_datetime(df["Timestamp"]) <= pd.to_datetime(end_date)) &
-                        (df["Glucose"] >= glucose_min) &
+                        (df["Glucose"] >= glucose_min) & 
                         (df["Glucose"] <= glucose_max)
                     ]
-            
+
                     # Display Filtered Data
                     st.subheader("📋 Filtered Results")
                     if not filtered_df.empty:
                         st.dataframe(filtered_df, use_container_width=True)
-            
+
                         # Download Filtered Results
                         csv = filtered_df.to_csv(index=False)
                         st.download_button(
@@ -99,8 +118,7 @@ def dashboard_page():
                     else:
                         st.warning("No data matches the applied filters. Please adjust your filter criteria.")
 
-
-            # **3. Trend Analysis**
+            # Trend Analysis
             st.subheader("📊 Trend Analysis")
             fig_trends = px.line(
                 df,
@@ -111,23 +129,18 @@ def dashboard_page():
             )
             st.plotly_chart(fig_trends, use_container_width=True)
 
-            # **4. Health Alerts**
-            st.subheader("🚨 Health Alerts")
+            # Health Alerts and Recommendations
+            st.subheader("🚨 Health Alerts and 💡 Recommendations")
             if avg_glucose > 140:
                 st.warning("Your average glucose level is above normal. Consider consulting a doctor.")
-            if avg_bmi > 25:
-                st.warning("Your average BMI is in the overweight range. Consider improving your diet and exercise.")
-
-            # **5. Recommendations**
-            st.subheader("💡 Recommendations")
-            if avg_glucose > 140:
                 st.info("**Glucose Recommendation**: Reduce sugar intake and monitor carbohydrate consumption.")
             if avg_bmi > 25:
+                st.warning("Your average BMI is in the overweight range. Consider improving your diet and exercise.")
                 st.info("**BMI Recommendation**: Incorporate regular physical activity and balanced meals.")
             if positive_predictions > 0:
-                st.info("**Diabetes Prediction Recommendation**: Schedule a medical checkup for further evaluation.")
+                st.warning("You have positive diabetes predictions. Schedule a medical checkup for further evaluation.")
 
-            # **6. Add Charts**
+            # Insights Charts
             st.subheader("📊 Insights")
             # Glucose Distribution Chart
             fig1 = px.histogram(df, x="Glucose", title="Glucose Level Distribution", nbins=10, color_discrete_sequence=["#636EFA"])
@@ -145,10 +158,10 @@ def dashboard_page():
     else:
         st.error("You must be logged in to access the dashboard.")
 
-    # **7. Admin Controls**
+    # Admin Controls
     if st.session_state.username == "admin":
         st.subheader("👩‍💼 Admin Controls")
-        conn = sqlite3.connect('users.db')
+        conn = sqlite3.connect(DB_PATH)
         admin_df = pd.read_sql_query("SELECT * FROM results", conn)
         conn.close()
         st.dataframe(admin_df, use_container_width=True)
