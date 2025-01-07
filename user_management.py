@@ -53,21 +53,26 @@ def profile_page():
     c = conn.cursor()
     
     # Fetch user details
-    c.execute("SELECT username, full_name, email FROM users WHERE username = ?", (username,))
+    c.execute("SELECT username, full_name, email, gender, age FROM users WHERE username = ?", (username,))
     user_data = c.fetchone()
 
     if user_data:
-        username, full_name, email = user_data
+        username, full_name, email, gender, age = user_data
         
         # Display Profile Information
         st.subheader("📋 Profile Information")
         st.text_input("Username", value=username, disabled=True)
         full_name = st.text_input("Full Name", value=full_name)
         email = st.text_input("Email", value=email)
-        
+        gender = st.selectbox("Gender", options=["Male", "Female", "Other"], index=["Male", "Female", "Other"].index(gender))
+        age = st.number_input("Age", value=age, min_value=0)
+
         # Update Profile Information
         if st.button("Update Profile"):
-            c.execute("UPDATE users SET full_name = ?, email = ? WHERE username = ?", (full_name, email, username))
+            c.execute(
+                "UPDATE users SET full_name = ?, email = ?, gender = ?, age = ? WHERE username = ?",
+                (full_name, email, gender, age, username)
+            )
             conn.commit()
             st.success("Profile updated successfully!")
     
@@ -79,7 +84,8 @@ def profile_page():
         if st.button("Reset Password"):
             if new_password and confirm_password:
                 if new_password == confirm_password:
-                    c.execute("UPDATE users SET password = ? WHERE username = ?", (new_password, username))
+                    hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
+                    c.execute("UPDATE users SET password = ? WHERE username = ?", (hashed_password.decode("utf-8"), username))
                     conn.commit()
                     st.success("Password reset successfully!")
                 else:
