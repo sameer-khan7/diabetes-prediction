@@ -103,8 +103,6 @@ def login_page():
                         st.error("Username already exists. Please choose a different username.")
                     except Exception as e:
                         st.error(f"Error during sign-up: {e}")
-                else:
-                    st.error("Please fill out all fields.")
 
     # Footer
     st.markdown("---")
