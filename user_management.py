@@ -96,3 +96,14 @@ def profile_page():
         st.error("User not found!")
     
     conn.close()
+
+    # Add a section for downloading the database
+    st.subheader("📥 Download Database")
+    st.markdown("You can download the current database file for backup or analysis purposes.")
+    with open(DB_PATH, "rb") as db_file:
+        st.download_button(
+            label="Download Database",
+            data=db_file,
+            file_name="users.db",
+            mime="application/octet-stream",
+        )
