@@ -3,9 +3,28 @@ import sqlite3
 import pandas as pd
 import plotly.express as px
 import os
+from fpdf import FPDF
 
 # Define the database path
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'users.db')
+
+def generate_pdf(df, username):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    pdf.cell(200, 10, txt=f"Health Report for {username}", ln=True, align="C")
+    pdf.ln(10)
+    pdf.cell(200, 10, txt="Summary:", ln=True)
+    pdf.ln(5)
+
+    # Add data
+    for i, row in df.iterrows():
+        pdf.cell(200, 10, txt=f"{row['Timestamp']}: Glucose={row['Glucose']}, BMI={row['BMI']}, Prediction={row['Prediction']}", ln=True)
+    
+    pdf_file = f"{username}_health_report.pdf"
+    pdf.output(pdf_file)
+    return pdf_file
 
 def dashboard_page():
     # Sidebar Navigation
@@ -66,6 +85,12 @@ def dashboard_page():
 
         # Check if there are any saved results
         if results:
+            
+            if st.button("Generate Health Report"):
+                pdf_file = generate_pdf(df, st.session_state.username)
+                with open(pdf_file, "rb") as f:
+                    st.download_button("Download Report", data=f, file_name=pdf_file, mime="application/pdf")
+            
             # Convert results to a DataFrame
             df = pd.DataFrame(results, columns=["Glucose", "BMI", "Prediction", "Timestamp"])
 
