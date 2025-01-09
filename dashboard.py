@@ -53,6 +53,7 @@ def dashboard_page():
         st.markdown('<div class="logout-button">', unsafe_allow_html=True)
         if st.button("🔒 Log Out", key="logout_button_dashboard"):
             st.session_state.page = "login"
+            st.session_state.logged_in = False  # Reset logged-in status
             st.session_state.pop("username", None)  # Clear session data
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
