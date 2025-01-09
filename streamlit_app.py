@@ -12,21 +12,25 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Initialize session state for navigation
+# Initialize session state variables
 if "page" not in st.session_state:
     st.session_state.page = "login"
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-# Tab-based navigation for a better user experience
-tabs = st.tabs(["🔑 Login", "📊 Dashboard", "🔮 Prediction", "👤 Profile Management"])
-
-with tabs[0]:  # Login Tab
+# Display Login page if user is not logged in
+if not st.session_state.logged_in:
+    st.title("Welcome to the Diabetes Prediction App")
+    st.caption("🔒 Please log in or sign up to access the app.")
     login.login_page()
 
-if "logged_in" in st.session_state and st.session_state.logged_in:  # Check login status
-    with tabs[1]:  # Dashboard Tab
-        dashboard.dashboard_page()
-    with tabs[2]:  # Prediction Tab
-        prediction.prediction_page()
-    with tabs[3]:  # Profile Management Tab
-        user_management.profile_page()
+else:
+    # Tab-based navigation for logged-in users
+    tabs = st.tabs(["📊 Dashboard", "🔮 Prediction", "👤 Profile Management"])
 
+    with tabs[0]:  # Dashboard Tab
+        dashboard.dashboard_page()
+    with tabs[1]:  # Prediction Tab
+        prediction.prediction_page()
+    with tabs[2]:  # Profile Management Tab
+        user_management.profile_page()
