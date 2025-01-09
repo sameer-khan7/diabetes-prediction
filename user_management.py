@@ -97,6 +97,23 @@ def profile_page():
     
     conn.close()
 
+    st.subheader("🎯 Set Your Health Goals")
+    target_glucose = st.number_input("Target Glucose Level (mg/dL)", min_value=70.0, max_value=200.0, step=0.1)
+    target_bmi = st.number_input("Target BMI", min_value=15.0, max_value=40.0, step=0.1)
+    
+    if st.button("Save Goals"):
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("""
+            UPDATE users
+            SET target_glucose = ?, target_bmi = ?
+            WHERE username = ?
+        """, (target_glucose, target_bmi, st.session_state.username))
+        conn.commit()
+        conn.close()
+        st.success("Health goals updated successfully!")
+
+
     # Add a section for downloading the database
     st.subheader("📥 Download Database")
     st.markdown("You can download the current database file for backup or analysis purposes.")
