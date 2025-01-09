@@ -7,16 +7,16 @@ DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'users.db')
 
 def profile_page():
     # Sidebar with clickable buttons for navigation
-    st.sidebar.title("Navigation")
+    #st.sidebar.title("Navigation")
     
     # Creating clickable buttons for Dashboard and Prediction pages
-    if st.sidebar.button("Dashboard"):
-        st.session_state.page = "dashboard"
-        st.rerun()  # To reload the app with the selected page
+    #if st.sidebar.button("Dashboard"):
+    #    st.session_state.page = "dashboard"
+    #    st.rerun()  # To reload the app with the selected page
 
-    if st.sidebar.button("Prediction"):
-        st.session_state.page = "prediction"
-        st.rerun()  # To reload the app with the selected page
+    #if st.sidebar.button("Prediction"):
+    #    st.session_state.page = "prediction"
+    #    st.rerun()  # To reload the app with the selected page
 
     # Logout Button
     st.markdown(
