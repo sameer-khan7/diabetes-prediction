@@ -15,6 +15,8 @@ st.set_page_config(
 # Initialize session state variables
 if "page" not in st.session_state:
     st.session_state.page = "login"
+if "username" not in st.session_state:
+    st.session_state.username = None
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
