@@ -160,8 +160,28 @@ def dashboard_page():
 
     # Admin Controls
     if st.session_state.username == "admin":
-        st.subheader("👩‍💼 Admin Controls")
+        st.subheader("👩‍💼 Admin Dashboard")
         conn = sqlite3.connect(DB_PATH)
-        admin_df = pd.read_sql_query("SELECT * FROM results", conn)
+        users_df = pd.read_sql_query("SELECT * FROM users", conn)
+        predictions_df = pd.read_sql_query("SELECT * FROM results", conn)
         conn.close()
-        st.dataframe(admin_df, use_container_width=True)
+    
+        # Display user data
+        st.write("All Users:")
+        st.dataframe(users_df, use_container_width=True)
+    
+        # Display predictions
+        st.write("All Predictions:")
+        st.dataframe(predictions_df, use_container_width=True)
+    
+        # Add user management
+        selected_user = st.selectbox("Select a User to Manage", users_df["username"])
+        if st.button("Delete User"):
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            c.execute("DELETE FROM users WHERE username = ?", (selected_user,))
+            conn.commit()
+            conn.close()
+            st.success(f"User {selected_user} deleted successfully!")
+            st.rerun()
+
