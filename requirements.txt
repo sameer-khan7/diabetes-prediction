@@ -8,3 +8,4 @@ plotly
 ipython
 lime
 seaborn
+fpdf
