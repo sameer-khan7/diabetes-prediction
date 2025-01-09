@@ -67,13 +67,13 @@ def prediction_page():
     st.write("This app predicts the likelihood of diabetes based on user inputs or uploaded data.")
 
     # Sidebar navigation
-    st.sidebar.header("Navigation")
-    if st.sidebar.button("Go to Dashboard", key="go_to_dashboard"):
-        st.session_state.page = "dashboard"
-        st.rerun()
-    if st.sidebar.button("Profile Management", key="go_to_profile"):
-        st.session_state.page = "profile"
-        st.rerun()
+    #st.sidebar.header("Navigation")
+    #if st.sidebar.button("Go to Dashboard", key="go_to_dashboard"):
+    #    st.session_state.page = "dashboard"
+    #    st.rerun()
+    #if st.sidebar.button("Profile Management", key="go_to_profile"):
+    #    st.session_state.page = "profile"
+    #    st.rerun()
 
     # Retrieve user data from the database
     conn = sqlite3.connect(db_path)
