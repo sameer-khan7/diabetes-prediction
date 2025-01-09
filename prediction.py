@@ -56,7 +56,7 @@ def prediction_page():
     logout_container = st.container()
     with logout_container:
         st.markdown('<div class="logout-button">', unsafe_allow_html=True)
-        if st.button("🔒 Log Out", key="logout_button"):
+        if st.button("🔒 Log Out", key="logout_button_predict"):
             st.session_state.page = "login"
             st.session_state.pop("username", None)  # Clear session data
             st.rerun()
