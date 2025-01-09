@@ -86,13 +86,13 @@ def dashboard_page():
         # Check if there are any saved results
         if results:
             
+            # Convert results to a DataFrame
+            df = pd.DataFrame(results, columns=["Glucose", "BMI", "Prediction", "Timestamp"])
+            
             if st.button("Generate Health Report"):
                 pdf_file = generate_pdf(df, st.session_state.username)
                 with open(pdf_file, "rb") as f:
                     st.download_button("Download Report", data=f, file_name=pdf_file, mime="application/pdf")
-            
-            # Convert results to a DataFrame
-            df = pd.DataFrame(results, columns=["Glucose", "BMI", "Prediction", "Timestamp"])
 
             # Display Metrics
             st.subheader("📈 Key Metrics")
