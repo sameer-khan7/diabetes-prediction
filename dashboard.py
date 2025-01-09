@@ -28,13 +28,13 @@ def generate_pdf(df, username):
 
 def dashboard_page():
     # Sidebar Navigation
-    st.sidebar.header("Navigation")
-    if st.sidebar.button("Prediction", key="go_to_prediction"):
-        st.session_state.page = "prediction"
-        st.rerun()
-    if st.sidebar.button("Profile Management", key="go_to_profile"):
-        st.session_state.page = "profile"
-        st.rerun()
+    #st.sidebar.header("Navigation")
+    #if st.sidebar.button("Prediction", key="go_to_prediction"):
+    #    st.session_state.page = "prediction"
+    #    st.rerun()
+    #if st.sidebar.button("Profile Management", key="go_to_profile"):
+    #    st.session_state.page = "profile"
+    #    st.rerun()
 
     # Improved Logout Button
     st.markdown(
