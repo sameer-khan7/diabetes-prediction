@@ -10,13 +10,16 @@ def generate_pdf(df, username, full_name, gender, age):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # Add DejaVuSans font (supports Unicode)
+    # Add DejaVuSans regular and bold fonts (supports Unicode)
     pdf.add_page()
     pdf.add_font("DejaVuSans", "", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", uni=True)
+    pdf.add_font("DejaVuSans", "B", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", uni=True)
+
+    # Set the regular font for most content
     pdf.set_font("DejaVuSans", size=12)
 
     # Cover Page
-    pdf.set_font("DejaVuSans", size=16, style="B")
+    pdf.set_font("DejaVuSans", size=16, style="B")  # Use bold variant here
     pdf.cell(200, 10, txt="Health Report", ln=True, align="C")
     pdf.ln(10)
     pdf.set_font("DejaVuSans", size=12)
@@ -26,7 +29,7 @@ def generate_pdf(df, username, full_name, gender, age):
     pdf.ln(20)
 
     # Summary Section
-    pdf.set_font("DejaVuSans", size=14, style="B")
+    pdf.set_font("DejaVuSans", size=14, style="B")  # Use bold variant here
     pdf.cell(200, 10, txt="Summary of Health Metrics", ln=True, align="L")
     pdf.ln(5)
     avg_glucose = df["Glucose"].mean()
@@ -39,7 +42,7 @@ def generate_pdf(df, username, full_name, gender, age):
     pdf.ln(10)
 
     # Detailed Results Table
-    pdf.set_font("DejaVuSans", size=14, style="B")
+    pdf.set_font("DejaVuSans", size=14, style="B")  # Use bold variant here
     pdf.cell(200, 10, txt="Detailed Results", ln=True, align="L")
     pdf.ln(5)
     pdf.set_font("DejaVuSans", size=10)
@@ -59,7 +62,7 @@ def generate_pdf(df, username, full_name, gender, age):
 
     # Recommendations Section
     pdf.ln(10)
-    pdf.set_font("DejaVuSans", size=14, style="B")
+    pdf.set_font("DejaVuSans", size=14, style="B")  # Use bold variant here
     pdf.cell(200, 10, txt="Recommendations", ln=True, align="L")
     pdf.ln(5)
     pdf.set_font("DejaVuSans", size=12)
