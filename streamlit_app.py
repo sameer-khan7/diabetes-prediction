@@ -24,23 +24,30 @@ if "logged_in" not in st.session_state:
 # Display Login page if user is not logged in
 if not st.session_state.logged_in:
     login.login_page()
+
 else:
-    # Tab-based navigation
+    # Define tabs for navigation
     tabs = ["📊 Dashboard", "📄 Health Report", "🔮 Prediction", "👤 Profile Management"]
-    
+
     # Add the Admin Dashboard tab only for admin
     if st.session_state.username == "admin":
-        tabs.insert(2, "👩‍💼 Admin Dashboard")
-    
-    selected_tab = st.selectbox("Select a Page", tabs, key="tab_selection")
+        tabs.append("👩‍💼 Admin Dashboard")
 
-    if selected_tab == "📊 Dashboard":
+    # Create tabs using Streamlit's tab functionality
+    active_tabs = st.tabs(tabs)
+
+    with active_tabs[0]:  # Dashboard
         dashboard.dashboard_page()
-    elif selected_tab == "📄 Health Report":
+
+    with active_tabs[1]:  # Health Report
         health_report.health_report_page()
-    elif selected_tab == "👩‍💼 Admin Dashboard" and st.session_state.username == "admin":
-        admin_dashboard.admin_dashboard_page()
-    elif selected_tab == "🔮 Prediction":
+
+    with active_tabs[2]:  # Prediction
         prediction.prediction_page()
-    elif selected_tab == "👤 Profile Management":
+
+    with active_tabs[3]:  # Profile Management
         user_management.profile_page()
+
+    if "👩‍💼 Admin Dashboard" in tabs:  # Admin Dashboard (only visible for admin)
+        with active_tabs[4]:
+            admin_dashboard.admin_dashboard_page()
