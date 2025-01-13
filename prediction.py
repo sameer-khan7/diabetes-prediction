@@ -188,19 +188,35 @@ def prediction_page():
         except FileNotFoundError:
             st.error("Dataset file not found. Please upload or specify the correct path.")
 
-    # Batch Prediction
+    # Batch Prediction Section
     st.subheader("Batch Prediction")
     uploaded_file = st.file_uploader("Upload a CSV file for batch prediction", type=["csv"])
     if uploaded_file:
-        data = pd.read_csv(uploaded_file)
-        if st.button("Predict for Uploaded Data"):
-            try:
-                scaled_data = scaler.transform(data)
+        try:
+            data = pd.read_csv(uploaded_file)
+            st.write("Uploaded Data Preview:")
+            st.dataframe(data.head())
+    
+            # Validate uploaded data
+            required_columns = ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"]
+            if not all(col in data.columns for col in required_columns):
+                st.error("The uploaded file must contain the following columns: " + ", ".join(required_columns))
+            else:
+                scaled_data = scaler.transform(data[required_columns])
                 predictions = model.predict(scaled_data)
                 data["Prediction"] = ["Positive" if p == 1 else "Negative" for p in predictions]
-                st.write(data)
-
-                # Download Results
-                st.download_button("Download Predictions", data.to_csv(index=False), file_name="predictions.csv")
-            except Exception as e:
-                st.error(f"Error processing batch predictions: {e}")
+    
+                # Display summary
+                st.subheader("Batch Prediction Summary")
+                positive_percentage = (data["Prediction"] == "Positive").mean() * 100
+                st.metric("Positive Predictions (%)", f"{positive_percentage:.2f}%")
+    
+                # Display chart
+                fig = px.pie(data, names="Prediction", title="Batch Prediction Breakdown", color_discrete_sequence=px.colors.sequential.RdBu)
+                st.plotly_chart(fig, use_container_width=True)
+    
+                # Download results
+                st.download_button("Download Predictions", data.to_csv(index=False), file_name="batch_predictions.csv")
+    
+        except Exception as e:
+            st.error(f"Error processing the file: {e}")
