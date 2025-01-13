@@ -25,6 +25,7 @@ def profile_page():
         .logout-button {
             display: flex;
             justify-content: flex-end;
+            width: 100%;          
         }
         </style>
         """,
