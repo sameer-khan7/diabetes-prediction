@@ -148,9 +148,14 @@ def dashboard_page():
             df = pd.DataFrame(results, columns=["Glucose", "BMI", "Prediction", "Timestamp"])
             
             if st.button("Generate Health Report"):
-                pdf_file = generate_pdf(df, st.session_state.username)
-                with open(pdf_file, "rb") as f:
-                    st.download_button("Download Report", data=f, file_name=pdf_file, mime="application/pdf")
+                if user_details:
+                    full_name, gender, age = user_details  # Fetch full_name, gender, and age from user details
+                    pdf_file = generate_pdf(df, st.session_state.username, full_name, gender, age)
+                    with open(pdf_file, "rb") as f:
+                        st.download_button("Download Report", data=f, file_name=pdf_file, mime="application/pdf")
+                else:
+                    st.error("User details are missing. Unable to generate the report.")
+
 
             # Display Metrics
             st.subheader("📈 Key Metrics")
