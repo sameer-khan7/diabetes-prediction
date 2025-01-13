@@ -10,7 +10,7 @@ def generate_pdf(df, username, full_name, gender, age):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # Use a UTF-8 font
+    # Add DejaVuSans font (supports Unicode)
     pdf.add_page()
     pdf.add_font("DejaVuSans", "", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", uni=True)
     pdf.set_font("DejaVuSans", size=12)
