@@ -23,14 +23,18 @@ def profile_page():
         """
         <style>
         .logout-button {
-            display: flex;
-            justify-content: flex-end;
-            width: 100%;          
+            display: block;
+            width: 100%;
+            text-align: right;
+        }
+        .logout-button button {
+            margin-right: 0;
         }
         </style>
         """,
         unsafe_allow_html=True,
     )
+    
     logout_container = st.container()
     with logout_container:
         st.markdown('<div class="logout-button">', unsafe_allow_html=True)
