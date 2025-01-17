@@ -44,11 +44,6 @@ def dashboard_page():
     st.title("📊 User Dashboard")
     st.markdown("Welcome to your personal dashboard. Here you can view your saved predictions and insights.")
 
-    # Check if a new prediction was made and refresh data
-    if st.session_state.get("new_prediction", False):
-        st.session_state.new_prediction = False  # Reset the flag
-        st.rerun()  # Refresh the dashboard to load new data
-
     # Fetch user details and results from the database
     if "username" in st.session_state:
         conn = sqlite3.connect(DB_PATH)
