@@ -82,9 +82,9 @@ def prediction_page():
     c.execute("SELECT gender, age FROM users WHERE username = ?", (st.session_state.get("username"),))
     user_data = c.fetchone()
 
-    # Retrieve the last saved stats for the logged-in user
+    # Retrieve the last saved `glucose` and `bmi` stats for the logged-in user
     c.execute("""
-        SELECT pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age 
+        SELECT glucose, bmi 
         FROM results WHERE username = ? ORDER BY timestamp DESC LIMIT 1
     """, (st.session_state.get("username"),))
     last_stats = c.fetchone()
@@ -92,17 +92,15 @@ def prediction_page():
 
     # Default values for the input fields
     default_values = {
-        "pregnancies": last_stats[0] if last_stats else 0,
-        "glucose": last_stats[1] if last_stats else 120.0,
-        "blood_pressure": last_stats[2] if last_stats else 70.0,
-        "skin_thickness": last_stats[3] if last_stats else 20.0,
-        "insulin": last_stats[4] if last_stats else 80.0,
-        "bmi": last_stats[5] if last_stats else 25.0,
-        "dpf": last_stats[6] if last_stats else 0.5,
-        "age": user_data[1] if user_data else 30,  # Default to age from the profile
+        "glucose": last_stats[0] if last_stats else 120.0,
+        "bmi": last_stats[1] if last_stats else 25.0,
+        "pregnancies": 0,
+        "blood_pressure": 70.0,
+        "skin_thickness": 20.0,
+        "insulin": 80.0,
+        "dpf": 0.5,
+        "age": user_data[1] if user_data else 30,  # Default age from user profile
     }
-    
-    conn.close()
 
     gender = user_data[0] if user_data else "Other"
     #user_age = user_data[1] if user_data else 30  # Default age if not found
