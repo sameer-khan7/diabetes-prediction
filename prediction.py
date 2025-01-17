@@ -154,6 +154,9 @@ def prediction_page():
                     """, (st.session_state.username, glucose, bmi, result))
                     conn.commit()
                     conn.close()
+
+                    # Set a flag to indicate a new prediction was made
+                    st.session_state.new_prediction = True
                     st.success("Prediction saved to your dashboard.")
                 else:
                     st.warning("Log in to save your predictions.")
