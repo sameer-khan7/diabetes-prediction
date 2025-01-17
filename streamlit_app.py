@@ -37,17 +37,22 @@ else:
     active_tabs = st.tabs(tabs)
 
     with active_tabs[0]:  # Dashboard
+        st.rerun()
         dashboard.dashboard_page()
 
     with active_tabs[1]:  # Health Report
+        st.rerun()
         health_report.health_report_page()
 
     with active_tabs[2]:  # Prediction
+        st.rerun()
         prediction.prediction_page()
 
     with active_tabs[3]:  # Profile Management
+        st.rerun()
         user_management.profile_page()
 
     if "👩‍💼 Admin Dashboard" in tabs:  # Admin Dashboard (only visible for admin)
         with active_tabs[4]:
+            st.rerun()
             admin_dashboard.admin_dashboard_page()
