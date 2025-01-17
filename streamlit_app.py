@@ -20,6 +20,8 @@ if "username" not in st.session_state:
     st.session_state.username = None
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
+if "new_prediction" not in st.session_state:
+    st.session_state.new_prediction = False  # Flag to track if a new prediction was made
 
 # Display Login page if user is not logged in
 if not st.session_state.logged_in:
@@ -37,7 +39,10 @@ else:
     active_tabs = st.tabs(tabs)
 
     with active_tabs[0]:  # Dashboard
-        st.rerun()
+        if st.session_state.get("new_prediction", False):
+            # Reset the flag and reload the dashboard
+            st.session_state.new_prediction = False
+            st.rerun()
         dashboard.dashboard_page()
 
     with active_tabs[1]:  # Health Report
@@ -45,14 +50,11 @@ else:
         health_report.health_report_page()
 
     with active_tabs[2]:  # Prediction
-        st.rerun()
         prediction.prediction_page()
 
     with active_tabs[3]:  # Profile Management
-        st.rerun()
         user_management.profile_page()
 
     if "👩‍💼 Admin Dashboard" in tabs:  # Admin Dashboard (only visible for admin)
         with active_tabs[4]:
-            st.rerun()
             admin_dashboard.admin_dashboard_page()
