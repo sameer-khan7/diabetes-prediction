@@ -102,7 +102,7 @@ def health_report_page():
     logout_container = st.container()
     with logout_container:
         st.markdown('<div class="logout-button">', unsafe_allow_html=True)
-        if st.button("🔒 Log Out", key="logout_button_dashboard"):
+        if st.button("🔒 Log Out", key="logout_button_report"):
             st.session_state.page = "login"
             st.session_state.logged_in = False  # Reset logged-in status
             st.session_state.pop("username", None)  # Clear session data
