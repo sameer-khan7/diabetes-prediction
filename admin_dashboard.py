@@ -6,6 +6,29 @@ import os
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'users.db')
 
 def admin_dashboard_page():
+
+    # Improved Logout Button
+    st.markdown(
+        """
+        <style>
+        .logout-button {
+            display: flex;
+            justify-content: flex-end;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    logout_container = st.container()
+    with logout_container:
+        st.markdown('<div class="logout-button">', unsafe_allow_html=True)
+        if st.button("🔒 Log Out", key="logout_button_admin"):
+            st.session_state.page = "login"
+            st.session_state.logged_in = False  # Reset logged-in status
+            st.session_state.pop("username", None)  # Clear session data
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    
     st.title("👩‍💼 Admin Dashboard")
     st.markdown("Welcome to the Admin Dashboard. Here, you can manage users and predictions.")
 
