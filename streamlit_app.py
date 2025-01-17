@@ -46,7 +46,6 @@ else:
         dashboard.dashboard_page()
 
     with active_tabs[1]:  # Health Report
-        st.rerun()
         health_report.health_report_page()
 
     with active_tabs[2]:  # Prediction
