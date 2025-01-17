@@ -9,6 +9,12 @@ from fpdf import FPDF
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'users.db')
 
 def dashboard_page():
+    
+    # Check if a new prediction was made and refresh data
+    if st.session_state.get("new_prediction", False):
+        st.session_state.new_prediction = False  # Reset the flag
+        st.rerun()  # Refresh the dashboard to load new data
+        
     # Sidebar Navigation
     #st.sidebar.header("Navigation")
     #if st.sidebar.button("Prediction", key="go_to_prediction"):
@@ -43,6 +49,7 @@ def dashboard_page():
     # Dashboard Title
     st.title("📊 User Dashboard")
     st.markdown("Welcome to your personal dashboard. Here you can view your saved predictions and insights.")
+
 
     # Fetch user details and results from the database
     if "username" in st.session_state:
