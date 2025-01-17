@@ -120,7 +120,7 @@ def prediction_page():
     insulin = st.number_input('Insulin (mu U/ml)', min_value=0.0, value=float(default_values["insulin"]), help="2-Hour serum insulin")
     bmi = st.number_input('BMI', min_value=0.0, value=float(default_values["bmi"]), help="Body Mass Index (weight in kg/(height in m)^2)")
     dpf = st.number_input('Diabetes Pedigree Function', min_value=0.0, value=float(default_values["dpf"]), help="Family history influence")
-    age = st.number_input('Age (years)', min_value=0, value=int(default_values["age"]), help="Age in years", disabled=True)
+    age = st.number_input('Age (years)', min_value=0, value=int(default_values["age"]), help="Age in years", disabled=False)
 
     # Arrange inputs for prediction
     features = np.array([pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age]).reshape(1, -1)
