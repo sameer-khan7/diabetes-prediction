@@ -81,10 +81,31 @@ def prediction_page():
     c = conn.cursor()
     c.execute("SELECT gender, age FROM users WHERE username = ?", (st.session_state.get("username"),))
     user_data = c.fetchone()
+
+    # Retrieve the last saved stats for the logged-in user
+    c.execute("""
+        SELECT pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age 
+        FROM results WHERE username = ? ORDER BY timestamp DESC LIMIT 1
+    """, (st.session_state.get("username"),))
+    last_stats = c.fetchone()
+    conn.close()
+
+    # Default values for the input fields
+    default_values = {
+        "pregnancies": last_stats[0] if last_stats else 0,
+        "glucose": last_stats[1] if last_stats else 120.0,
+        "blood_pressure": last_stats[2] if last_stats else 70.0,
+        "skin_thickness": last_stats[3] if last_stats else 20.0,
+        "insulin": last_stats[4] if last_stats else 80.0,
+        "bmi": last_stats[5] if last_stats else 25.0,
+        "dpf": last_stats[6] if last_stats else 0.5,
+        "age": user_data[1] if user_data else 30,  # Default to age from the profile
+    }
+    
     conn.close()
 
     gender = user_data[0] if user_data else "Other"
-    user_age = user_data[1] if user_data else 30  # Default age if not found
+    #user_age = user_data[1] if user_data else 30  # Default age if not found
 
     # Input Section
     st.subheader("Input Your Data")
@@ -95,13 +116,13 @@ def prediction_page():
     else:
         pregnancies = 0  # Default value for male users
 
-    glucose = st.number_input('Glucose Level', min_value=0.0, value=120.0, help="Plasma glucose concentration")
-    blood_pressure = st.number_input('Blood Pressure (mm Hg)', min_value=0.0, value=70.0, help="Diastolic blood pressure")
-    skin_thickness = st.number_input('Skin Thickness (mm)', min_value=0.0, value=20.0, help="Triceps skin fold thickness")
-    insulin = st.number_input('Insulin (mu U/ml)', min_value=0.0, value=80.0, help="2-Hour serum insulin")
-    bmi = st.number_input('BMI', min_value=0.0, value=25.0, help="Body Mass Index (weight in kg/(height in m)^2)")
-    dpf = st.number_input('Diabetes Pedigree Function', min_value=0.0, value=0.5, help="Family history influence")
-    age = st.number_input('Age (years)', min_value=0, value=user_age, help="Age in years", disabled=True)
+    glucose = st.number_input('Glucose Level', min_value=0.0, value=float(default_values["glucose"]), help="Plasma glucose concentration")
+    blood_pressure = st.number_input('Blood Pressure (mm Hg)', min_value=0.0, value=float(default_values["blood_pressure"]), help="Diastolic blood pressure")
+    skin_thickness = st.number_input('Skin Thickness (mm)', min_value=0.0, value=float(default_values["skin_thickness"]), help="Triceps skin fold thickness")
+    insulin = st.number_input('Insulin (mu U/ml)', min_value=0.0, value=float(default_values["insulin"]), help="2-Hour serum insulin")
+    bmi = st.number_input('BMI', min_value=0.0, value=float(default_values["bmi"]), help="Body Mass Index (weight in kg/(height in m)^2)")
+    dpf = st.number_input('Diabetes Pedigree Function', min_value=0.0, value=float(default_values["dpf"]), help="Family history influence")
+    age = st.number_input('Age (years)', min_value=0, value=int(default_values["age"]), help="Age in years", disabled=True)
 
     # Arrange inputs for prediction
     features = np.array([pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age]).reshape(1, -1)
