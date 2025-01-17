@@ -86,6 +86,29 @@ def generate_pdf(df, username, full_name, gender, age):
 
 
 def health_report_page():
+
+    # Improved Logout Button
+    st.markdown(
+        """
+        <style>
+        .logout-button {
+            display: flex;
+            justify-content: flex-end;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    logout_container = st.container()
+    with logout_container:
+        st.markdown('<div class="logout-button">', unsafe_allow_html=True)
+        if st.button("🔒 Log Out", key="logout_button_dashboard"):
+            st.session_state.page = "login"
+            st.session_state.logged_in = False  # Reset logged-in status
+            st.session_state.pop("username", None)  # Clear session data
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    
     st.title("📄 Health Report")
     st.markdown("Generate and download your personalized health report summarizing your predictions and metrics.")
 
