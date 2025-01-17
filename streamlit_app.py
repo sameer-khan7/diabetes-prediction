@@ -39,10 +39,10 @@ else:
     active_tabs = st.tabs(tabs)
 
     with active_tabs[0]:  # Dashboard
-        if st.session_state.get("new_prediction", False):
+        #if st.session_state.get("new_prediction", False):
             # Reset the flag and reload the dashboard
-            st.session_state.new_prediction = False
-            st.rerun()
+        #    st.session_state.new_prediction = False
+        #   st.rerun()
         dashboard.dashboard_page()
 
     with active_tabs[1]:  # Health Report
